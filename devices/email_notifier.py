@@ -1,0 +1,201 @@
+# !/bin/python3
+# coding: utf-8
+
+'''
+DESCRIPTION
+===========
+
+Python script to send names and images of door entrants using email notifications
+
+
+'''
+
+import tkinter as tk
+import sys
+import time
+import random
+import os
+import multiprocessing as mp
+import device_communicator as dc
+
+import smtplib
+import ssl
+from email.mime.image import MIMEImage
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import PIL
+from PIL import Image
+
+
+class Controls(tk.Frame):
+    def __init__(self):
+        super().__init__(parent)
+        pass
+
+
+
+class Main_Panel(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent)
+        self.parent = parent
+        bg1 = "#CE4C53"
+        wid = 350
+        self.config(bg=bg1)
+        self.config(width=wid)
+        self.config(height=100)
+        self.config(bd=2)
+        self.config(relief="ridge")
+        self.grid_propagate(False)  # Prevents resizing
+
+        ''' Adding parameters '''
+        L_name = tk.Label(self, text="Email Settings", bg=bg1)
+        F0 = tk.Frame(self, height=3, width = wid/2+20, bg="black")
+        F1 = tk.Frame(self, height=3, width = wid/2+20, bg="white")
+        L_send_em = tk.Label(self, text="Send Email?", bg=bg1)
+        B_send_em = tk.Button(self, text="Send", command=parent.start_connection)
+
+        ''' Grid configuration '''
+        cc = 5
+        self.columnconfigure(0, weight=1, pad=cc)
+        self.columnconfigure(1, weight=1, pad=cc)
+        for i in range(15):
+            self.rowconfigure(i, pad=cc)
+        self.configure(padx=cc)
+
+        ''' Placing parameters '''
+        L_name.grid(column=0, columnspan=2, row=0, sticky="new")
+        F0.grid(column=0, row=1, pady=10, sticky="we")
+        F1.grid(column=1, row=1, sticky="we")
+        L_send_em.grid(column=0, row=5, sticky="e")
+        B_send_em.grid(column=1, row=5, sticky="w")
+
+
+
+class MainApp_Email(tk.Tk):
+    def __init__(self, parent=None, title="defualt",
+            conf=False, kq=None, chc=None, dq=None):
+        super().__init__()
+        self.parent = parent
+        self.conf = conf
+        self.chc = chc
+
+        self.geometry("+100+500")
+        self.title(title)
+
+        ''' Setting email variables '''
+        self.port = 465     # For SSL
+        self.email_address = "python.door.capstone@gmail.com"
+        self.password = ""      # From config
+        self.receiver_address = "mcmonagl@ualberta.ca"
+        self.subject = "Person at Door!"
+        self.body = "This message was sent from an RPi Python script"
+        self.message = f"Subject: {self.subject}\n\n{self.body}"
+
+        ''' Setting Frames: Can remove later '''
+        self.MainPanel = Main_Panel(self)
+        self.MainPanel.grid(column=0, row=0, sticky="ns")
+
+        # Hardware and Communication
+        if conf:
+            self.protocol("WM_DELETE_WINDOW", lambda:None)
+            self.kq = kq
+            self.dq = dq
+            self.comm_agent = dc.Dev_Communicator()
+        else:
+            self.protocol("WM_DELETE_WINDOW", self.on_quit)
+            self.kq = mp.Queue()
+            self.dq = mp.Queue()
+
+        self.initialization()
+        self.update_GUI()
+        self.mainloop()
+
+    def initialization(self):
+        my_init = {
+                'position':'+100+500',
+                'password':'none',
+                'receiver':'none',
+        }
+        for k, v in my_init.items():
+            try: my_init[k] = self.conf[k]
+            except KeyError: pass
+            except AttributeError: pass
+            except TypeError: pass
+
+        # Assigning variables
+        self.password = my_init['password']
+
+    def start_connection(self):
+        # Create a secure SSL context
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", self.port, context=context) as server:
+            server.login(self.email_address, self.password)
+            server.sendmail(self.email_address, self.receiver_address, self.msg.as_string())
+
+    def create_msg(self):
+        self.msg = MIMEMultipart()
+        self.msg['Subject'] = self.subject
+        self.msg['From'] = self.email_address
+        self.msg['To'] = self.receiver_address
+        self.msgText = MIMEText('<b>%s</b>' % (self.body), 'html')
+        self.msg.attach(self.msgText)
+        with open('Entrant.png', 'rb') as fp:
+            img = MIMEImage(fp.read())
+            img.add_header('Content-Disposition', 'attachment', filename="Entrant.png")
+            self.msg.attach(img)
+
+    def update_GUI(self):
+        # COMMUNICATOR
+        if not self.dq.empty():
+            name_received = self.dq.get()
+            frame_received = self.dq.get()
+            print("EMAIL: Received Name: {}!!!!!".format(name_received))
+            time_rec = time.strftime("%H:%M:%S")
+            self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
+            self.message = f"Subject: {self.subject}\n\n{self.body}"
+            frame_convert = PIL.Image.fromarray(frame_received, 'RGB')
+            frame_convert = frame_convert.save("Entrant.png")
+            self.create_msg()
+#            with open('Entrant.png', 'rb') as fp:
+#                img = MIMEImage(fp.read())
+#                img.add_header('Content-Disposition', 'attachment', filename="Entrant.jpg")
+#                self.message.attach(img)
+#            attachment = MIMEImage(frame_convert)
+#            self.message.attach(attachment)
+        if not self.kq.empty():
+            string_received = self.kq.get()
+            print("Email: Received {} command from kill_queue!".format(string_received))
+            self.on_quit()
+        self.after(1, self.update_GUI)
+
+    def on_quit(self):
+        print("Email Notifier: Quitting...")
+        self.destroy()
+
+
+
+# MAIN
+def main():
+    root_email = MainApp_Email(
+            parent = None,
+            title = "Email Notifications (PID: {})".format(os.getpid()),
+            conf = None,
+            kq = None,
+            chc = None,
+            dq = None
+            )
+
+def my_dev(conf_sect, kill_queue, child_comm, detect_queue):
+    root_email = MainApp_Email(
+            parent=None,
+            title = "CHILD: Email Settings",
+            conf = conf_sect,
+            kq = kill_queue,
+            chc = child_comm,
+            dq = detect_queue
+            )
+
+if __name__ == "__main__":
+    main()
+
+#EOF
