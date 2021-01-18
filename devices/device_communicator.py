@@ -25,7 +25,8 @@ sys.path.append(os.path.expanduser("./devices"))
 try:
     import camera           # Detection camera
     import email_notifier   # Email Notifications
-    import encoder
+    import encoder          # New Face Addtions
+    import value_editor     # Device Settings
 except ModuleNotFoundError as err:
     print("Error: {} ...Qutting...".format(err))
     sys.exit(True)

@@ -3,7 +3,7 @@
 
 '''
 DESCRIPTION
-==========
+===========
 Python script to encode new face data to be recognized
 
 Modules:

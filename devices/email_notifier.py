@@ -27,6 +27,7 @@ import PIL
 from PIL import Image
 
 
+
 class Controls(tk.Frame):
     def __init__(self):
         super().__init__(parent)
