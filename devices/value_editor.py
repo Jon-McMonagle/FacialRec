@@ -6,8 +6,7 @@ DESCRIPTION
 ===========
 Python script to edit default config values such as:
     - Receiving email
-    - Message for the email
-    - Encoded faces??
+    - Encoded faces
 
 Modules:
 
@@ -20,6 +19,7 @@ import os
 import configparser
 import multiprocessing as mp
 import device_communicator as dc
+import configparser
 
 
 
@@ -40,10 +40,10 @@ class Main_Panel(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.parent = parent
         bg1 = "#B5C5F9"
-        wid = 600               # might need to change
+        wid = 600
         self.config(bg=bg1)
         self.config(width=wid)
-        self.config(height=200) # might need to change
+        self.config(height=150) # might need to change
         self.config(bd=1)
         self.config(relief="raised")
         self.grid_propagate(False)
@@ -56,9 +56,6 @@ class Main_Panel(tk.Frame):
         L_current_ue = tk.Label(self, text="Current User Email:", bg=bg1)
         V_current_ue = tk.Label(self, justify=tk.RIGHT, textvariable= parent.current_email)
         B_current_ue = tk.Button(self, command=ChangeUE, text="Change")
-        L_current_em = tk.Label(self, text="Current Email Message:", bg=bg1)
-        V_current_em = tk.Label(self, justify=tk.RIGHT, textvariable=parent.current_message)
-        B_current_em = tk.Button(self, command=ChangeEM, text="Change")
         B_view_SF = tk.Button(self, command=ViewFaces, text="View Saved Faces")
 
         ''' Grid configuration '''
@@ -73,13 +70,10 @@ class Main_Panel(tk.Frame):
 
         ''' Placing parameters '''
         L_name.grid(column=1, columnspan=2, row=0, sticky="new")
-        L_current_ue.grid(column=0,  row=3, sticky="we")
-        V_current_ue.grid(column=1, columnspan=2, row=3, sticky="we")
-        B_current_ue.grid(column=3, row=3, sticky="we")
-        L_current_em.grid(column=0,  row=6, sticky="we")
-        V_current_em.grid(column=1, columnspan=2, row=6, sticky="we")
-        B_current_em.grid(column=3, row=6, sticky="we")
-        B_view_SF.grid(column=1, columnspan=2, row=10, sticky="we")
+        L_current_ue.grid(column=0,  row=4, sticky="we")
+        V_current_ue.grid(column=1, columnspan=2, row=4, sticky="we")
+        B_current_ue.grid(column=3, row=4, sticky="we")
+        B_view_SF.grid(column=1, columnspan=2, row=12, sticky="we")
 
 
 
@@ -111,7 +105,6 @@ class ChangeUE(tk.Toplevel):
     def set_email(self):
         value = self.T_ne.get()
         if value:
-            print(value)
             self.cfg = configparser.ConfigParser()
             self.cfg.read('config/config_FR.cfg')
             emailnotifier = self.cfg["email_notifier"]
@@ -124,21 +117,16 @@ class ChangeUE(tk.Toplevel):
 
 
 
-class ChangeEM(tk.Toplevel):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.parent = parent
-        self.title("Change Email Message")
-        self.padding = 5
-
-
 class ViewFaces(tk.Toplevel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
         self.title("View Saved Faces")
         self.padding = 5
-
+        bg1 = "#2589B3"
+        self.config(width=100)
+        self.config(height=100)
+        ''' Adding 
 
 
 class MainApp_Settings(tk.Tk):
@@ -154,7 +142,6 @@ class MainApp_Settings(tk.Tk):
 
         ''' Setting Variables '''
         self.current_email = tk.StringVar()
-        self.current_message = tk.StringVar()
 
         ''' Setting Frames '''
         self.MainPanel = Main_Panel(self)
@@ -170,6 +157,7 @@ class MainApp_Settings(tk.Tk):
             self.protocol("WM_DELETE_WINDOW", self.on_quit)
             self.kq = mp.Queue()
             self.dq = mp.Queue()
+            os.chdir("..")
 
         self.initialization()
         self.update_GUI()
@@ -179,7 +167,6 @@ class MainApp_Settings(tk.Tk):
         my_init = {
             'position':'500+500',
             'receiver':'none',
-            'message':'none',
         }
         for k, v in my_init.items():
             try: my_init[k] = self.conf[k]
@@ -189,11 +176,13 @@ class MainApp_Settings(tk.Tk):
 
          # Assigning variables
         email_holder =  my_init['receiver']
-        message_holder = my_init['message']
         self.current_email.set(email_holder)
-        self.current_message.set(message_holder)
 
     def update_GUI(self):
+        cfg = configparser.ConfigParser()
+        cfg.read('config/config_FR.cfg')
+        cfgemail = cfg["value_editor"]
+        self.current_email.set(cfgemail["receiver"])
         # COMMUNICATOR
         if not self.kq.empty():
             string_received = self.kq.get()

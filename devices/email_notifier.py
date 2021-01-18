@@ -17,6 +17,7 @@ import random
 import os
 import multiprocessing as mp
 import device_communicator as dc
+import configparser
 
 import smtplib
 import ssl
@@ -87,7 +88,7 @@ class MainApp_Email(tk.Tk):
         self.port = 465     # For SSL
         self.email_address = "python.door.capstone@gmail.com"
         self.password = ""      # From config
-        self.receiver_address = "mcmonagl@ualberta.ca"
+        self.receiver_address = ""  # From config
         self.subject = "Person at Door!"
         self.body = "This message was sent from an RPi Python script"
         self.message = f"Subject: {self.subject}\n\n{self.body}"
@@ -106,6 +107,7 @@ class MainApp_Email(tk.Tk):
             self.protocol("WM_DELETE_WINDOW", self.on_quit)
             self.kq = mp.Queue()
             self.dq = mp.Queue()
+            os.chdir("..")
 
         self.initialization()
         self.update_GUI()
@@ -125,6 +127,7 @@ class MainApp_Email(tk.Tk):
 
         # Assigning variables
         self.password = my_init['password']
+        self.receiver_adresss = my_init['receiver']
 
     def start_connection(self):
         # Create a secure SSL context
@@ -146,6 +149,12 @@ class MainApp_Email(tk.Tk):
             self.msg.attach(img)
 
     def update_GUI(self):
+        try:
+            cfg = configparser.ConfigParser()
+            cfg.read('config/config_FR.cfg')
+            cfgemail = cfg["email_notifier"]
+            self.receiver_address = cfgemail["receiver"]
+        except KeyError: pass
         # COMMUNICATOR
         if not self.dq.empty():
             name_received = self.dq.get()
@@ -157,12 +166,6 @@ class MainApp_Email(tk.Tk):
             frame_convert = PIL.Image.fromarray(frame_received, 'RGB')
             frame_convert = frame_convert.save("Entrant.png")
             self.create_msg()
-#            with open('Entrant.png', 'rb') as fp:
-#                img = MIMEImage(fp.read())
-#                img.add_header('Content-Disposition', 'attachment', filename="Entrant.jpg")
-#                self.message.attach(img)
-#            attachment = MIMEImage(frame_convert)
-#            self.message.attach(attachment)
         if not self.kq.empty():
             string_received = self.kq.get()
             print("Email: Received {} command from kill_queue!".format(string_received))

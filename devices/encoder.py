@@ -24,6 +24,7 @@ import face_recognition
 import pickle
 import os
 from imutils import paths
+import configparser
 
 import tkinter as tk
 from tkinter import filedialog
@@ -156,6 +157,9 @@ class MainApp_Encoder(tk.Tk):
         for(i, imagePath) in enumerate(imagePaths):
             # extract the name from the image path
             name = imagePath.split(os.path.sep)[-2]
+            # Pass name to config
+            cfg = configparser.ConfigParser()
+            cfg.
             '''
             load the input image and convert it from BGR
             to dlib ordering, RGB
