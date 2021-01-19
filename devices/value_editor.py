@@ -123,11 +123,40 @@ class ViewFaces(tk.Toplevel):
         self.parent = parent
         self.title("View Saved Faces")
         self.padding = 5
-        bg1 = "#2589B3"
+        bg1 = "#2589B1"
         self.config(width=100)
         self.config(height=100)
-        ''' Adding 
+        ''' Adding parameters '''
+        listlabel = tk.Label(self, text="Saved Faces:", bg=bg1)
+        scrollbar = tk.Scrollbar(self)
+        self.nlist = tk.Listbox(self, yscrollcommand=scrollbar.set)
+        delbutton = tk.Button(self, text="Delete", command=lambda:self.del_name(), fg='red')
+        ''' Grid configuration '''
+        cc = 5
+        self.columnconfigure(0, weight=1, pad=cc)
+        self.columnconfigure(1, weight=1, pad=cc)
+        self.columnconfigure(2, weight=1, pad=cc)
+        for i in range(10):
+            self.rowconfigure(i, pad=cc)
+        ''' Placing parameters '''
+        listlabel.grid(column=0, columnspan=3, row=0, sticky="we")
+        self.nlist.grid(column=0, row=3, sticky="we")
+        scrollbar.grid(column=1, row=3, sticky="ns")
+        delbutton.grid(column=2, row=3, sticky="we")
+        ''' Adding values to list '''
+        for n in range(1000):
+            try:
+                cfg = configparser.ConfigParser()
+                cfg.read('config/config_FR.cfg')
+                cfgnames = cfg["saved_faces"]
+                name = cfgnames[str(n)]
+                self.nlist.insert(n, name)
+            except KeyError: pass
+        scrollbar.config(command = self.nlist.yview)
 
+    def del_name(self):
+        selection = self.nlist.get(self.nlist.curselection())
+        print("Deleting: ", selection)
 
 class MainApp_Settings(tk.Tk):
     def __init__(self, parent=None, title="defualt",

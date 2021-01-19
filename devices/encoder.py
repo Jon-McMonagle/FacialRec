@@ -159,7 +159,7 @@ class MainApp_Encoder(tk.Tk):
             name = imagePath.split(os.path.sep)[-2]
             # Pass name to config
             cfg = configparser.ConfigParser()
-            cfg.
+#            cfg.
             '''
             load the input image and convert it from BGR
             to dlib ordering, RGB

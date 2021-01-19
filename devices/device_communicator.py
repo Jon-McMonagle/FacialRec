@@ -46,6 +46,7 @@ class Main_Comm:
         self.devs = self.Read_config()
         print("Communicator: Devices from config: {}".format(self.devs))
         self.devs.remove('Command')
+        self.devs.remove('saved_faces')
         print("Communicator: Removed: {}".format(self.devs))
         # Check for 'executable'
         to_run = []
