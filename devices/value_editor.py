@@ -9,7 +9,6 @@ Python script to edit default config values such as:
     - Encoded faces
 
 Modules:
-
 '''
 
 import tkinter as tk
@@ -20,6 +19,7 @@ import configparser
 import multiprocessing as mp
 import device_communicator as dc
 import configparser
+import pickle
 
 
 
@@ -144,19 +144,53 @@ class ViewFaces(tk.Toplevel):
         scrollbar.grid(column=1, row=3, sticky="ns")
         delbutton.grid(column=2, row=3, sticky="we")
         ''' Adding values to list '''
-        for n in range(1000):
-            try:
-                cfg = configparser.ConfigParser()
-                cfg.read('config/config_FR.cfg')
-                cfgnames = cfg["saved_faces"]
-                name = cfgnames[str(n)]
-                self.nlist.insert(n, name)
-            except KeyError: pass
+        self.update_list()
         scrollbar.config(command = self.nlist.yview)
 
+    def update_list(self):
+            addingnames = True
+            n = 0
+            self.cfg = configparser.ConfigParser()
+            self.cfg.read('config/config_FR.cfg')
+            numNames = len(self.cfg.options("saved_faces"))
+            if numNames == 0:
+                addingnames = False
+            self.cfgnames = self.cfg["saved_faces"]
+            while addingnames:
+                try:
+                    name = self.cfgnames[str(n)]
+                    self.nlist.insert(n, name)
+                    numNames -= 1
+                    if numNames == 0:
+                        addingnames = False
+                except KeyError: pass
+                n += 1
+
     def del_name(self):
-        selection = self.nlist.get(self.nlist.curselection())
-        print("Deleting: ", selection)
+        try:
+            namesel = self.nlist.get(self.nlist.curselection())
+            unmatched = True
+            n = 0
+            name = ""
+            print("Deleting:", namesel)
+            while unmatched:
+                try:
+                    name = self.cfgnames[str(n)]
+                except KeyError: pass
+                if namesel == name:
+                    unmatched = False
+                    # Remove name from face_enc
+#                    face_enc = open("face_enc", "w")
+#                    encodings = face_enc["
+                    self.cfg.remove_option("saved_faces", str(n))
+                    with open('config/config_FR.cfg', 'w') as conf:
+                         self.cfg.write(conf)
+                else:
+                    n += 1
+            self.nlist.delete(tk.ANCHOR)
+        except tk.TclError: pass
+
+
 
 class MainApp_Settings(tk.Tk):
     def __init__(self, parent=None, title="defualt",
@@ -209,9 +243,11 @@ class MainApp_Settings(tk.Tk):
 
     def update_GUI(self):
         cfg = configparser.ConfigParser()
-        cfg.read('config/config_FR.cfg')
-        cfgemail = cfg["value_editor"]
-        self.current_email.set(cfgemail["receiver"])
+        try:
+            cfg.read('config/config_FR.cfg')
+            cfgemail = cfg["value_editor"]
+            self.current_email.set(cfgemail["receiver"])
+        except KeyError: pass
         # COMMUNICATOR
         if not self.kq.empty():
             string_received = self.kq.get()

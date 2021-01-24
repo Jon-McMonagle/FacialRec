@@ -155,6 +155,7 @@ class MainApp_Email(tk.Tk):
             cfgemail = cfg["email_notifier"]
             self.receiver_address = cfgemail["receiver"]
         except KeyError: pass
+        except DuplicateOptionError: pass
         # COMMUNICATOR
         if not self.dq.empty():
             name_received = self.dq.get()

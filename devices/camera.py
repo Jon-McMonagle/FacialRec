@@ -122,7 +122,6 @@ class MainApp_Camera(tk.Tk):
         self.canvas.pack(side="left", padx=10, pady=10)
 
         # Hardware and Communication
-        self.capture_device = VideoCapture(video_source=0, parent=self)
         if conf:
             self.protocol("WM_DELETE_WINDOW", lambda:None)
             self.kq = kq
@@ -132,6 +131,8 @@ class MainApp_Camera(tk.Tk):
             self.protocol("WM_DELETE_WINDOW", self.on_quit)
             self.kq = mp.Queue()
             self.dq = mp.Queue()
+            os.chdir("..")
+        self.capture_device = VideoCapture(video_source=0, parent=self)
 
         self.initialization()
         self.update_GUI()
@@ -202,10 +203,10 @@ class VideoCapture():
     def __init__(self, video_source=0, parent=None):
         self.parent = parent
         self.cascPath = "haarcascade_frontalface_default.xml"
-        self.enc_data = 'face_enc'
+#        self.enc_data = 'face_enc'
         self.faceCascade = cv2.CascadeClassifier(self.cascPath)
         # load the known faces and embeddings saved in the last file
-        self.data = pickle.loads(open(self.enc_data, "rb").read())
+#        self.data = pickle.loads(open(self.enc_data, "rb").read())
         self.video_cap = cv2.VideoCapture(video_source)
         ''' If camera doesn't start, abandon process '''
         if not self.video_cap.isOpened():
@@ -215,6 +216,14 @@ class VideoCapture():
         self.picy = int(self.video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         print("CAMERA: Image Size: {} x {}". format(self.picx, self.picy))
         self.frame_counter()
+        self.encoder_data()
+
+    def encoder_data(self):
+        self.list = os.listdir('encodings')
+        self.nof = len(self.list)    # number of files
+#        for n in range(self.nof):
+#            dataname = "encodings/" + str(self.list[n])
+#            self.data[n] = pickle.loads(open(dataname, "rb").read())
 
     def frame_counter(self):
         self.frame_counter = 0
@@ -224,6 +233,7 @@ class VideoCapture():
         self.images = np.zeros((1, self.picy, self.picx))
 
     def get_frame_rate(self):
+#        self.data = pickle.loads(open(self.enc_data, "rb").read())  # enc data
         if self.video_cap.isOpened():
             ret, frame = self.video_cap.read()
             if ret:
@@ -254,8 +264,15 @@ class VideoCapture():
         names = []
         '''Loop over facial embeddings in case we have multiple embeddings for multiple faces '''
         name = None
+        matches = False
+#        for n in range(self.nof):
+#            encdata = 'encodings/' + str(self.list[n])
+#            self.data = pickle.loads(open(encdata, "rb").read())
         for encoding in encodings:
-            matches = face_recognition.compare_faces(self.data["encodings"], encoding)
+            for n in range(self.nof):
+                encdata = 'encodings/' + str(self.list[n])
+                self.data = pickle.loads(open(encdata, "rb").read())
+                matches = face_recognition.compare_faces(self.data["encodings"], encoding)
             # If no matches !!!
             name = "Unknown"
             if True in matches:

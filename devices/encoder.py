@@ -56,7 +56,7 @@ class Main_Panel(tk.Frame):
         self.grid_propagate(False)  # Prevents resizing
 
         ''' Adding parameters '''
-        L_name = tk.Label(self, text = "Encoder Settings", bg=bg1)
+        L_name = tk.Label(self, text = "Add Approved Entrant", bg=bg1)
         L_select_dir = tk.Label(self, text="Select Image Directory", bg=bg1)
         self.current_dir = tk.Label(self, justify=tk.RIGHT, text=parent.Directory)
         select_dir = tk.Button(self, text="Select Directory", command=self.change_dir)
@@ -86,6 +86,12 @@ class Main_Panel(tk.Frame):
                 title="Select Image Directory"
                 )
         self.current_dir["text"] = self.parent.Directory
+        cfg = configparser.ConfigParser()
+        cfg.read('config/config_FR.cfg')
+        editor = cfg["value_editor"]
+        editor["directory"] = self.parent.Directory
+        with open('config/config_FR.cfg', 'w') as conf:
+            cfg.write(conf)
 
 
 
@@ -103,8 +109,12 @@ class ConfirmEncoding(tk.Toplevel):
             pack(side=tk.LEFT, fill=tk.X, padx=self.padding, pady=self.padding)
 
     def encoder_button_pass(self):
+        cfg = configparser.ConfigParser()
+        cfg.read('config/config_FR.cfg')
+        veditor = cfg["value_editor"]
+        dir = veditor["directory"]
+        MainApp_Encoder.start_encoding(dir)
         self.destroy()
-        MainApp_Encoder.button_test()
 
 
 
@@ -136,30 +146,21 @@ class MainApp_Encoder(tk.Tk):
             self.protocol("WM_DELETE_WINDOW", self.on_quit)
             self.kq = mp.Queue()
             self.dq = mp.Queue()
+            os.chdir("..")
 
-#        self.initialization()
         self.update_GUI()
         self.mainloop()
 
-    def button_test():
-        print("Button works!!!")
-
-    def start_encoding(self):
+    def start_encoding(dir):
         # Get paths of each file in folder
         # Images here contain data
-
-#        imagePaths = list(paths.list_images('jon'))
-        imagePaths = self.Directory
+        imagePaths = list(paths.list_images(dir))
         knownEncodings = []
         knownNames = []
-
         # loop over the image paths
         for(i, imagePath) in enumerate(imagePaths):
             # extract the name from the image path
             name = imagePath.split(os.path.sep)[-2]
-            # Pass name to config
-            cfg = configparser.ConfigParser()
-#            cfg.
             '''
             load the input image and convert it from BGR
             to dlib ordering, RGB
@@ -174,12 +175,37 @@ class MainApp_Encoder(tk.Tk):
             for encoding in encodings:
                 knownEncodings.append(encoding)
                 knownNames.append(name)
+        # pass name to config
+        cfg = configparser.ConfigParser()
+        cfg.read('config/config_FR.cfg')
+        numNames = len(cfg.options("saved_faces"))
+        cfgNames = cfg["saved_faces"]
+        if numNames == 0:
+            cfg.set('saved_faces', '0', '')
+            cfgNames["0"] = name
+            with open('config/config_FR.cfg','w') as conf:
+                cfg.write(conf)
+        else:
+            unnumbered = True
+            n = 0
+            while unnumbered:
+                try:
+                    holder = cfgNames[str(n)]
+                    n += 1
+                except KeyError:
+                    cfg.set('saved_faces', str(n), '')
+                    cfgNames[str(n)] = name
+                    with open('config/config_FR.cfg','w') as conf:
+                        cfg.write(conf)
+                    unnumbered = False
         # save encodings along with their names in dictonary data
-        data = {"encodings": knownEncodings, "names": knownNames}
+        enc_title = "encodings/" + "face_enc" + str(name)
+        data = {"encodings" : knownEncodings, "names" : knownNames}
         # use pickle to save data into a file for later use
-        f = open("face_enc", "wb")
+        f = open(enc_title, "wb")
         f.write(pickle.dumps(data))
         f.close()
+        print("Encoding finished")
 
     def update_GUI(self):
         # COMMUNICATOR
@@ -209,7 +235,7 @@ def main():
 def my_dev(conf_sect, kill_queue, child_comm, detect_queue):
     root_encoder = MainApp_Encoder(
             parent=None,
-            title = "CHILD: Encoder",
+            title = "Encoder",
             conf = conf_sect,
             kq = kill_queue,
             chc = child_comm,
