@@ -73,7 +73,7 @@ class Frame_leftNav(tk.Frame):
         bg1 = "#1BA314"
         self.config(bg=bg1)
         self.config(width=150)
-        self.config(height=200)
+        self.config(height=100)
         self.config(bd=2)
         self.config(relief="ridge")
         self.pack_propagate(False)  # prevents resizing
@@ -86,21 +86,11 @@ class Frame_MainFrame(tk.Frame):
         self.parent = parent
         bg1= "#9B65BF"
         self.config(bg=bg1)
-        self.config(width=400)
-        self.config(height=130)
+        self.config(width=200)
+        self.config(height=100)
         self.config(bd=2)
         self.config(relief="ridge")
         self.grid_propagate(False)  # prevents resizing
-
-        ''' Adding elements to frame '''
-#        self.label_detect = tk.Label(self, text="Detect Face", bg=bg1)
-#        self.button_detect = tk.Checkbutton(self, var=parent.Detection, bg=bg1) # Detection var
-
-#        self.string_interval = tk.StringVar()
-#        self.string_interval.set(str(parent.Detection_interval.get()))
-#        self.label_interval = tk.Label(self, text="Detection Rate [s]", bg=bg1)
-#        self.button_interval_value = tk.Entry(self, width=5, textvariable=self.string_interval)
-#        self.button_interval_value.bind('<Return>', self.set_interval)
 
         ''' Grid configuration '''
         self.columnconfigure(0, weight=1, pad=3)
@@ -109,29 +99,6 @@ class Frame_MainFrame(tk.Frame):
 
         self.rowconfigure(0, pad=5)
         self.rowconfigure(1, pad=5)
-
-        ''' Placing controls '''
-#        self.label_detect.grid(column=2, row=0, sticky="w")
-#        self.button_detect.grid(column=3, row=0, sticky="e")
-
-#        self.label_interval.grid(column=2, row=1, sticky="w")
-#        self.button_interval_value.grid(column=3, row=1, sticky="e")
-
-    def set_interval(self, event):
-        self.focus()    # takes focus away from the entry
-
-        old_value = str(self.parent.Detection_interval.get())
-        new_value = self.string_interval.get()
-        try:
-            new = int(new_value)
-            if new <= 0:
-                print("Detection interval must be above 0")
-                self.string_interval.set("1")
-                new=1
-            self.parent.Detection_interval.set(new)
-        except ValueError:
-            print("Cannot convert to integer")
-            self.string_interval.set(old_value)
 
 
 

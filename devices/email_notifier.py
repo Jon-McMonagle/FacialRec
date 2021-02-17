@@ -148,7 +148,7 @@ class MainApp_Email(tk.Tk):
             img.add_header('Content-Disposition', 'attachment', filename="Entrant.png")
             self.msg.attach(img)
 
-    def update_GUI(self):
+    def update_GUI(self):       # NEED to add the pin code to this section for approved names
         try:
             cfg = configparser.ConfigParser()
             cfg.read('config/config_FR.cfg')

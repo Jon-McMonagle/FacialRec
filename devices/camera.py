@@ -104,9 +104,6 @@ class MainApp_Camera(tk.Tk):
         self.frame_rate = tk.DoubleVar()
         self.frame_rate.set(-1)
 
-#        self.imagename = "PERSONS NAME FROM RECOGNITION.png"    # Edit this stuff
-#        self.detect_interval = time.time() * 2                  # Edit this stuff
-#        self.directory = ""                                     # Send email instead of saving
         self.sent_time = 0
         self.new_time = 15
         self.time_differential = 15
@@ -152,16 +149,6 @@ class MainApp_Camera(tk.Tk):
         # Assigning variables
         self.geometry(my_init['position'])
         self.delay = int(my_init['update'])
-
-        # Declaring format to send back to Command
-        self.tosend = {}
-        self.tosend['exp [ms]'] = float('nan')      # Setting a key
-
-        self.tosend['averages'] = float('nan')
-        self.tosend['avg on/off'] = 'off'           # Probably can get rid of this as well
-        ''' Send to Command'''
-#        if self.conf:
-#            self.chc.send(self.tosend)
 
     def update_GUI(self):
         self.fr  = self.capture_device.get_frame_rate()
@@ -218,12 +205,9 @@ class VideoCapture():
         self.frame_counter()
         self.encoder_data()
 
-    def encoder_data(self):
+    def encoder_data(self):     # Probably don't need this!
         self.list = os.listdir('encodings')
         self.nof = len(self.list)    # number of files
-#        for n in range(self.nof):
-#            dataname = "encodings/" + str(self.list[n])
-#            self.data[n] = pickle.loads(open(dataname, "rb").read())
 
     def frame_counter(self):
         self.frame_counter = 0
@@ -233,7 +217,6 @@ class VideoCapture():
         self.images = np.zeros((1, self.picy, self.picx))
 
     def get_frame_rate(self):
-#        self.data = pickle.loads(open(self.enc_data, "rb").read())  # enc data
         if self.video_cap.isOpened():
             ret, frame = self.video_cap.read()
             if ret:
@@ -265,9 +248,6 @@ class VideoCapture():
         '''Loop over facial embeddings in case we have multiple embeddings for multiple faces '''
         name = None
         matches = False
-#        for n in range(self.nof):
-#            encdata = 'encodings/' + str(self.list[n])
-#            self.data = pickle.loads(open(encdata, "rb").read())
         for encoding in encodings:
             for n in range(self.nof):
                 encdata = 'encodings/' + str(self.list[n])

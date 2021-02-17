@@ -179,9 +179,7 @@ class ViewFaces(tk.Toplevel):
                 except KeyError: pass
                 if namesel == name:
                     unmatched = False
-                    # Remove name from face_enc
-#                    face_enc = open("face_enc", "w")
-#                    encodings = face_enc["
+                    # Add feature to remove encoding
                     self.cfg.remove_option("saved_faces", str(n))
                     with open('config/config_FR.cfg', 'w') as conf:
                          self.cfg.write(conf)
