@@ -169,6 +169,7 @@ class ViewFaces(tk.Toplevel):
     def del_name(self):
         try:
             namesel = self.nlist.get(self.nlist.curselection())
+            name_enc = "encodings/" + "face_enc" + namesel
             unmatched = True
             n = 0
             name = ""
@@ -186,6 +187,7 @@ class ViewFaces(tk.Toplevel):
                 else:
                     n += 1
             self.nlist.delete(tk.ANCHOR)
+            os.remove(name_enc)
         except tk.TclError: pass
 
 

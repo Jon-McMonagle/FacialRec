@@ -103,6 +103,8 @@ class ConfirmEncoding(tk.Toplevel):
         self.padding = 5
         tk.Label(self, text="Are the contents of this folder only images?").\
             pack(side="top", padx=70, pady=30)
+        tk.Label(self, text="Note: The directory name will be the approved person's name!").\
+            pack(side="top", padx=70, pady=30)
         tk.Button(self, text='Yes', command=lambda:self.encoder_button_pass(), fg='green').\
             pack(side=tk.RIGHT, fill=tk.X, padx=self.padding, pady=self.padding)
         tk.Button(self, text='No', command=self.destroy, fg='red').\

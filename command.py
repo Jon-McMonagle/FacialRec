@@ -84,21 +84,27 @@ class Frame_MainFrame(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
-        bg1= "#9B65BF"
+        bg1= "#008261"
         self.config(bg=bg1)
-        self.config(width=200)
+        self.config(width=120)
         self.config(height=100)
         self.config(bd=2)
         self.config(relief="ridge")
         self.grid_propagate(False)  # prevents resizing
 
+        ''' Adding parameters '''
+        quit_button = tk.Button(self, text="Quit Program", command=parent.on_quit)
+
         ''' Grid configuration '''
         self.columnconfigure(0, weight=1, pad=3)
+        self.columnconfigure(1, pad=3)
         self.columnconfigure(2, pad=3)
-        self.columnconfigure(3, pad=3)
 
         self.rowconfigure(0, pad=5)
         self.rowconfigure(1, pad=5)
+        self.rowconfigure(2, pad=5)
+
+        quit_button.grid(column=1, row=1, sticky="ns")
 
 
 
@@ -122,14 +128,14 @@ class MainApp(tk.Tk):
         self.parse_config(Command)
 
         ''' Creating interface '''
-        self.config(menu = MenuBar(self))
+#        self.config(menu = MenuBar(self))
 
-        self.LeftNav = Frame_leftNav(self)
+#        self.LeftNav = Frame_leftNav(self)
         self.MainFrame = Frame_MainFrame(self)
 
         ''' Setting layout '''
         m=1
-        self.LeftNav.grid(column=0, row=0, rowspan=2, padx=m, pady=m)
+#        self.LeftNav.grid(column=0, row=0, rowspan=2, padx=m, pady=m)
         self.MainFrame.grid(column=1, row=0, padx=m, pady=m, sticky="news")
 
         self.killer = device_communicator.Graceful_Killer()
