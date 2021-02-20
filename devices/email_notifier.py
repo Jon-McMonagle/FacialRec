@@ -73,7 +73,7 @@ class Main_Panel(tk.Frame):
 
 
 
-class MainApp_Email(tk.Tk):
+class MainApp_Email():
     def __init__(self, parent=None, title="defualt",
             conf=False, kq=None, chc=None, dq=None):
         super().__init__()
@@ -81,8 +81,8 @@ class MainApp_Email(tk.Tk):
         self.conf = conf
         self.chc = chc
 
-        self.geometry("+100+500")
-        self.title(title)
+#        self.geometry("+100+500")
+#        self.title(title)
 
         ''' Setting email variables '''
         self.port = 465     # For SSL
@@ -92,26 +92,27 @@ class MainApp_Email(tk.Tk):
         self.subject = "Person at Door!"
         self.body = "This message was sent from an RPi Python script"
         self.message = f"Subject: {self.subject}\n\n{self.body}"
+        self.run_update = True
 
         ''' Setting Frames: Can remove later '''
-        self.MainPanel = Main_Panel(self)
-        self.MainPanel.grid(column=0, row=0, sticky="ns")
+#        self.MainPanel = Main_Panel(self)
+#        self.MainPanel.grid(column=0, row=0, sticky="ns")
 
         # Hardware and Communication
         if conf:
-            self.protocol("WM_DELETE_WINDOW", lambda:None)
+#            self.protocol("WM_DELETE_WINDOW", lambda:None)
             self.kq = kq
             self.dq = dq
             self.comm_agent = dc.Dev_Communicator()
         else:
-            self.protocol("WM_DELETE_WINDOW", self.on_quit)
+#            self.protocol("WM_DELETE_WINDOW", self.on_quit)
             self.kq = mp.Queue()
             self.dq = mp.Queue()
             os.chdir("..")
 
         self.initialization()
         self.update_GUI()
-        self.mainloop()
+#        self.mainloop()
 
     def initialization(self):
         my_init = {
@@ -149,33 +150,36 @@ class MainApp_Email(tk.Tk):
             self.msg.attach(img)
 
     def update_GUI(self):       # NEED to add the pin code to this section for approved names
-        try:
-            cfg = configparser.ConfigParser()
-            cfg.read('config/config_FR.cfg')
-            cfgemail = cfg["email_notifier"]
-            self.receiver_address = cfgemail["receiver"]
-        except KeyError: pass
-        except DuplicateOptionError: pass
-        # COMMUNICATOR
-        if not self.dq.empty():
-            name_received = self.dq.get()
-            frame_received = self.dq.get()
-            print("EMAIL: Received Name: {}!!!!!".format(name_received))
-            time_rec = time.strftime("%H:%M:%S")
-            self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
-            self.message = f"Subject: {self.subject}\n\n{self.body}"
-            frame_convert = PIL.Image.fromarray(frame_received, 'RGB')
-            frame_convert = frame_convert.save("Entrant.png")
-            self.create_msg()
-        if not self.kq.empty():
-            string_received = self.kq.get()
-            print("Email: Received {} command from kill_queue!".format(string_received))
-            self.on_quit()
-        self.after(1, self.update_GUI)
+        while self.run_update:
+            try:
+                cfg = configparser.ConfigParser()
+                cfg.read('config/config_FR.cfg')
+                cfgemail = cfg["email_notifier"]
+                self.receiver_address = cfgemail["receiver"]
+            except KeyError: pass
+            except DuplicateOptionError: pass
+            # COMMUNICATOR
+            if not self.dq.empty():
+                name_received = self.dq.get()
+                frame_received = self.dq.get()
+                print("EMAIL: Received Name: {}!!!!!".format(name_received))
+                time_rec = time.strftime("%H:%M:%S")
+                self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
+                self.message = f"Subject: {self.subject}\n\n{self.body}"
+                frame_convert = PIL.Image.fromarray(frame_received, 'RGB')
+                frame_convert = frame_convert.save("Entrant.png")
+                self.create_msg()
+                self.start_connection()
+            if not self.kq.empty():
+                string_received = self.kq.get()
+                print("Email: Received {} command from kill_queue!".format(string_received))
+                self.on_quit()
+#            self.after(1, self.update_GUI)
 
     def on_quit(self):
         print("Email Notifier: Quitting...")
-        self.destroy()
+        self.run_update = False
+#        self.destroy()
 
 
 
