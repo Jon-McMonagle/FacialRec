@@ -214,7 +214,7 @@ class VideoCapture():
         self.f_old = 0
         self.t_old = time.time()
         self.frate = -1
-        self.images = np.zeros((2, self.picy, self.picx))
+        self.images = np.zeros((1, self.picy, self.picx))
 
     def get_frame_rate(self):
         if self.video_cap.isOpened():
@@ -223,7 +223,7 @@ class VideoCapture():
                 frame_np = np.array(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), np.float)
                 frame_np = frame_np[np.newaxis,:,:]
                 self.frame_counter += 1
-                idx = self.frame_counter % 2
+                idx = self.frame_counter % 1
                 self.images[idx:idx+1,:,:] = frame_np
                 time_diff = time.time() - self.t_old
                 if (time_diff) > 0.5:
@@ -238,10 +238,9 @@ class VideoCapture():
     def recognition(self):
         self.encoder_data()
         ret, frame = self.video_cap.read()
-        orig_frame = frame
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 5,
-                                             minSize = (60, 60))
+#        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#        faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 5,
+#                                             minSize = (60, 60))
         # convert from BGR to RGB
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         encodings = face_recognition.face_encodings(rgb)
@@ -259,6 +258,9 @@ class VideoCapture():
             if matches == False:
                 break
             else:
+                gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+                faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 5,
+                                     minSize = (60, 60))
                 if True in matches:
                     # Find positions at which we get True and store them
                     matchedIdxs = [i for (i,b) in enumerate(matches) if b]
@@ -270,7 +272,7 @@ class VideoCapture():
                 # Update the list of the names
                 names.append(name)
                 # Loop over the recognized faces
-                for((x,y,w,h), name) in zip(self.faces, names):
+                for((x,y,w,h), name) in zip(faces, names):
                     '''Rescale the face coordinates, draw the predicted face name on the image'''
                     cv2.rectangle(frame, (x,y), (x+w, y+h), (0, 255, 0), 2)
                     cv2.putText(frame, name, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
