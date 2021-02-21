@@ -238,9 +238,6 @@ class VideoCapture():
     def recognition(self):
         self.encoder_data()
         ret, frame = self.video_cap.read()
-#        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-#        faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 5,
-#                                             minSize = (60, 60))
         # convert from BGR to RGB
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         encodings = face_recognition.face_encodings(rgb)
@@ -256,8 +253,10 @@ class VideoCapture():
             # If no matches !!!
             name = "Unknown"
             if matches == False:
+                print("Camera: Breaking FR loop")
                 break
             else:
+                print("Camera: In FR loop!!!!")
                 gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
                 faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 5,
                                      minSize = (60, 60))
