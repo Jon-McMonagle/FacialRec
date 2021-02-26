@@ -253,7 +253,6 @@ class VideoCapture():
             # If no matches !!!
             name = "Unknown"
             if matches == False:
-                print("Camera: Breaking FR loop")
                 break
             else:
                 print("Camera: In FR loop!!!!")
@@ -298,7 +297,7 @@ def main():
 def my_dev(conf_sect, kill_queue, child_comm, detect_queue):
     root_camera = MainApp_Camera(
             parent = None,
-            title = "CHILD: Camera",
+            title = "Camera",
             conf = conf_sect,
             kq = kill_queue,
             chc = child_comm,

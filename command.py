@@ -118,6 +118,11 @@ class MainApp(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", lambda: ConfirmQuit(self))    # "x" button confirm close
 #        self.protocol("WM_DELETE_WINDOW", lambda: None) # "x" button does nothing
 
+        try:
+            os.mkdir("encodings")
+        except FileExistsError:
+            pass
+
         ''' Declaring variables '''
         self.Directory = os.getcwd()
 
@@ -187,6 +192,10 @@ class MainApp(tk.Tk):
         return _header, _all_vals
 
     def on_quit(self):
+        try:
+            os.remove("Entrant.png")
+        except FileNotFoundError:
+            pass
         print("Command: Shutting down devices: {}".format(self.Devices))
         self.communicator.Stop_devices()
 
