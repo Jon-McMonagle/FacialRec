@@ -4,16 +4,15 @@
 '''
 DESCRIPTION:
 
-Python script that recognizes faces from a camera from a encoding file
-The encoding file is created separately by analyzing presaved images
-If a face is not saved in the encoding it will be labelled as unknown
+Python script that produces a live feed from a camera and then
+sends the images to the recognition module to be analyzed.
 
 '''
 
 # Recognition modules
-import face_recognition
-import imutils
-import pickle
+#import face_recognition
+#import imutils
+#import pickle
 import time
 import cv2
 import os
@@ -24,7 +23,6 @@ import sys
 import PIL
 from PIL import Image
 from PIL import ImageTk
-import time
 import random
 import numpy as np
 
@@ -91,11 +89,10 @@ class Frame_Info(tk.Frame):
 
 class MainApp_Camera(tk.Tk):
     def __init__(self, parent=None, title="default",
-            conf=False, kq=None, chc=None, dq=None):
+            conf=False, kq=None, dq=None, eq=None):
         super().__init__()
         self.parent = parent
         self.conf = conf
-        self.chc = chc
 
         self.geometry("+700+100")
         self.title(title)
@@ -104,9 +101,9 @@ class MainApp_Camera(tk.Tk):
         self.frame_rate = tk.DoubleVar()
         self.frame_rate.set(-1)
 
-        self.sent_time = 0
-        self.new_time = 15
-        self.time_differential = 15
+#        self.sent_time = 0
+#        self.new_time = 15
+#        self.time_differential = 15
 
         ''' Setting Frames '''
         self.ImageFrame = Frame_Image(self)
@@ -122,13 +119,16 @@ class MainApp_Camera(tk.Tk):
         if conf:
             self.protocol("WM_DELETE_WINDOW", lambda:None)
             self.kq = kq
-            self.dq = dq    # detection queue
+            self.dq = dq    # Detection queue
+            self.eq = eq    # Email queue
             self.comm_agent = dc.Dev_Communicator()
         else:
             self.protocol("WM_DELETE_WINDOW", self.on_quit)
             self.kq = mp.Queue()
             self.dq = mp.Queue()
+            self.eq = mp.Queue()
             os.chdir("..")
+
         self.capture_device = VideoCapture(video_source=0, parent=self)
 
         self.initialization()
@@ -151,32 +151,36 @@ class MainApp_Camera(tk.Tk):
         self.delay = int(my_init['update'])
 
     def update_GUI(self):
-        self.fr  = self.capture_device.get_frame_rate()
+        self.fr, curr_frame, answer  = self.capture_device.get_frame_rate()
         self.frame_rate.set(round(self.fr, 3))
-        answer, frame, name, or_frame = self.capture_device.recognition()
+#        answer, frame, name, or_frame = self.capture_device.recognition()
         ###
         if answer:
-            self.frame_array = frame    # create array from frame
-            self.image = PIL.Image.fromarray(frame)
+#            self.frame_array = curr_frame    # create array from frame
+            self.image = PIL.Image.fromarray(curr_frame)
             self.photo = PIL.ImageTk.PhotoImage(self.image)
             self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)  # GUI
-        # COMMUNICATOR
+        if self.conf:
+            self.comm_agent.Camera_detect_queue(self.dq, curr_frame)
+        else:
+            pass    # Running alone
+        # COMMUNICATOR KQ
         if not self.kq.empty():
             string_received = self.kq.get()
             print("Camera: Received {} from kill_queue!".format(string_received))
             self.on_quit()
         ###
-        if self.conf:
-            if name and (self.time_differential <= 0):
-                self.comm_agent.Camera_detect_queue(self.dq, name)
-                self.comm_agent.Camera_detect_queue(self.dq, or_frame)
-                self.sent_time = time.time()
-                self.new_time = self.sent_time + 15
-            else:
-                pass
-        else:
-            pass    # Running alone
-        self.time_differential = self.new_time - time.time()
+#        if self.conf:
+#            if name and (self.time_differential <= 0):
+#                self.comm_agent.Camera_detect_queue(self.dq, name)
+#                self.comm_agent.Camera_detect_queue(self.dq, or_frame)
+#                self.sent_time = time.time()
+#                self.new_time = self.sent_time + 15
+#            else:
+#                pass
+#        else:
+#            pass    # Running alone
+#       self.time_differential = self.new_time - time.time()
         self.after(self.delay, self.update_GUI)
 
     def on_quit(self):
@@ -189,10 +193,10 @@ class MainApp_Camera(tk.Tk):
 class VideoCapture():
     def __init__(self, video_source=0, parent=None):
         self.parent = parent
-        self.cascPath = "haarcascade_frontalface_default.xml"
+#'''        self.cascPath = "haarcascade_frontalface_default.xml" '''
 #        self.enc_data = 'face_enc'
-        self.faceCascade = cv2.CascadeClassifier(self.cascPath)
-        # load the known faces and embeddings saved in the last file
+#'''        self.faceCascade = cv2.CascadeClassifier(self.cascPath) '''
+#        # load the known faces and embeddings saved in the last file
 #        self.data = pickle.loads(open(self.enc_data, "rb").read())
         self.video_cap = cv2.VideoCapture(video_source)
         ''' If camera doesn't start, abandon process '''
@@ -203,11 +207,11 @@ class VideoCapture():
         self.picy = int(self.video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         print("CAMERA: Image Size: {} x {}". format(self.picx, self.picy))
         self.frame_counter()
-        self.encoder_data()
-
-    def encoder_data(self):
-        self.list = os.listdir('encodings')
-        self.nof = len(self.list)    # number of files
+#'''        self.encoder_data() '''
+#
+#    def encoder_data(self):
+#        self.list = os.listdir('encodings')
+#        self.nof = len(self.list)    # number of files
 
     def frame_counter(self):
         self.frame_counter = 0
@@ -230,52 +234,52 @@ class VideoCapture():
                     self.frate = (self.frame_counter - self.f_old) / time_diff
                     self.f_old = self.frame_counter
                     self.t_old = time.time()
-                return self.frate
+                return self.frate, frame, ret
             else:
-                return self.frate
+                return self.frate, frame, ret
         else: return None
 
-    def recognition(self):
-        self.encoder_data()
-        ret, frame = self.video_cap.read()
-        # convert from BGR to RGB
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        encodings = face_recognition.face_encodings(rgb)
-        names = []
-        '''Loop over facial embeddings in case we have multiple embeddings for multiple faces '''
-        name = None
-        matches = False
-        for encoding in encodings:
-            for n in range(self.nof):
-                encdata = 'encodings/' + str(self.list[n])
-                self.data = pickle.loads(open(encdata, "rb").read())
-                matches = face_recognition.compare_faces(self.data["encodings"], encoding)
-            # If no matches !!!
-            name = "Unknown"
-            if matches == False:
-                break
-            else:
-                print("Camera: In FR loop!!!!")
-                gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-                faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 5,
-                                     minSize = (60, 60))
-                if True in matches:
-                    # Find positions at which we get True and store them
-                    matchedIdxs = [i for (i,b) in enumerate(matches) if b]
-                    counts = {}
-                    for i in matchedIdxs:
-                        name = self.data["names"][i]
-                        counts[name] = counts.get(name, 0) + 1
-                    name = max(counts, key = counts.get)
-                # Update the list of the names
-                names.append(name)
-                # Loop over the recognized faces
-                for((x,y,w,h), name) in zip(faces, names):
-                    '''Rescale the face coordinates, draw the predicted face name on the image'''
-                    cv2.rectangle(frame, (x,y), (x+w, y+h), (0, 255, 0), 2)
-                    cv2.putText(frame, name, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
-        return ret, frame, name, rgb
-
+#    def recognition(self):
+#        self.encoder_data()
+#        ret, frame = self.video_cap.read()
+#        # convert from BGR to RGB
+#        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+#        encodings = face_recognition.face_encodings(rgb)
+#        names = []
+#        '''Loop over facial embeddings in case we have multiple embeddings for multiple faces '''
+#        name = None
+#        matches = False
+#        for encoding in encodings:
+#            for n in range(self.nof):
+#                encdata = 'encodings/' + str(self.list[n])
+#                self.data = pickle.loads(open(encdata, "rb").read())
+#                matches = face_recognition.compare_faces(self.data["encodings"], encoding)
+#            # If no matches !!!
+#            name = "Unknown"
+#            if matches == False:
+#                break
+#            else:
+#                print("Camera: In FR loop!!!!")
+#                gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+#                faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1, minNeighbors = 5,
+#                                     minSize = (60, 60))
+#                if True in matches:
+#                    # Find positions at which we get True and store them
+#                    matchedIdxs = [i for (i,b) in enumerate(matches) if b]
+#                    counts = {}
+#                    for i in matchedIdxs:
+#                        name = self.data["names"][i]
+#                        counts[name] = counts.get(name, 0) + 1
+#                    name = max(counts, key = counts.get)
+#                # Update the list of the names
+#                names.append(name)
+#                # Loop over the recognized faces
+#                for((x,y,w,h), name) in zip(faces, names):
+#                    '''Rescale the face coordinates, draw the predicted face name on the image'''
+#                    cv2.rectangle(frame, (x,y), (x+w, y+h), (0, 255, 0), 2)
+#                    cv2.putText(frame, name, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
+#        return ret, frame, name, rgb
+#
 
     def release_video(self):
         if self.video_cap.isOpened():
@@ -290,18 +294,18 @@ def main():
             title = "Camera (PID: {})".format(os.getpid()),
             conf = None,
             kq = None,
-            chc = None,
-            dq = None
+            dq = None,
+            eq = None
             )
 
-def my_dev(conf_sect, kill_queue, child_comm, detect_queue):
+def my_dev(conf_sect, kill_queue, detect_queue, email_queue):
     root_camera = MainApp_Camera(
             parent = None,
             title = "Camera",
             conf = conf_sect,
             kq = kill_queue,
-            chc = child_comm,
-            dq = detect_queue
+            dq = detect_queue,
+            eq = email_queue
             )
 
 if __name__ == "__main__":

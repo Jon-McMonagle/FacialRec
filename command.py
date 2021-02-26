@@ -139,9 +139,8 @@ class MainApp(tk.Tk):
         self.MainFrame = Frame_MainFrame(self)
 
         ''' Setting layout '''
-        m=1
 #        self.LeftNav.grid(column=0, row=0, rowspan=2, padx=m, pady=m)
-        self.MainFrame.grid(column=1, row=0, padx=m, pady=m, sticky="news")
+        self.MainFrame.grid(column=1, row=0, padx=1, pady=1, sticky="news")
 
         self.killer = device_communicator.Graceful_Killer()
 
@@ -153,7 +152,7 @@ class MainApp(tk.Tk):
         print("Command: Getting values from config file")
         my_init = {
                 'directory':self.Directory,
-                'position':'1+1',
+                'position':'10+10',
         }
         for k, v in my_init.items():
             try: my_init[k] = Command[k]

@@ -74,12 +74,11 @@ class Main_Panel(tk.Frame):
 
 
 class MainApp_Email():
-    def __init__(self, parent=None, title="defualt",
-            conf=False, kq=None, chc=None, dq=None):
+    def __init__(self, parent=None, title="default",
+            conf=False, kq=None, dq=None, eq=None):
         super().__init__()
         self.parent = parent
         self.conf = conf
-        self.chc = chc
 
 #        self.geometry("+100+500")
 #        self.title(title)
@@ -103,11 +102,13 @@ class MainApp_Email():
 #            self.protocol("WM_DELETE_WINDOW", lambda:None)
             self.kq = kq
             self.dq = dq
+            self.eq = eq
             self.comm_agent = dc.Dev_Communicator()
         else:
 #            self.protocol("WM_DELETE_WINDOW", self.on_quit)
             self.kq = mp.Queue()
             self.dq = mp.Queue()
+            self.eq = mp.Queue()
             os.chdir("..")
 
         self.initialization()
@@ -159,9 +160,9 @@ class MainApp_Email():
             except KeyError: pass
             except DuplicateOptionError: pass
             # COMMUNICATOR
-            if not self.dq.empty():
-                name_received = self.dq.get()
-                frame_received = self.dq.get()
+            if not self.eq.empty():
+                name_received = self.eq.get()
+                frame_received = self.eq.get()
                 print("EMAIL: Received Name: {}!!!!!".format(name_received))
                 time_rec = time.strftime("%H:%M:%S")
                 self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
@@ -190,18 +191,18 @@ def main():
             title = "Email Notifications (PID: {})".format(os.getpid()),
             conf = None,
             kq = None,
-            chc = None,
-            dq = None
+            dq = None,
+            eq = None
             )
 
-def my_dev(conf_sect, kill_queue, child_comm, detect_queue):
+def my_dev(conf_sect, kill_queue, detect_queue, email_queue):
     root_email = MainApp_Email(
             parent=None,
             title = "CHILD: Email Settings",
             conf = conf_sect,
             kq = kill_queue,
-            chc = child_comm,
-            dq = detect_queue
+            dq = detect_queue,
+            eq = email_queue
             )
 
 if __name__ == "__main__":

@@ -19,7 +19,6 @@ import configparser
 import multiprocessing as mp
 import device_communicator as dc
 import configparser
-import pickle
 
 
 
@@ -194,11 +193,10 @@ class ViewFaces(tk.Toplevel):
 
 class MainApp_Settings(tk.Tk):
     def __init__(self, parent=None, title="defualt",
-            conf=False, kq=None, chc=None, dq=None):
+            conf=False, kq=None, dq=None, eq=None):
         super().__init__()
         self.parent = parent
         self.conf = conf
-        self.chc = chc
 
         self.geometry("+500+500")
         self.title(title)
@@ -215,11 +213,13 @@ class MainApp_Settings(tk.Tk):
             self.protocol("WM_DELETE_WINDOW", lambda:None)
             self.kq = kq
             self.dq = dq
+            self.eq = eq
             self.comm_agent = dc.Dev_Communicator()
         else:
             self.protocol("WM_DELETE_WINDOW", self.on_quit)
             self.kq = mp.Queue()
             self.dq = mp.Queue()
+            self.eq = mp.Queue()
             os.chdir("..")
 
         self.initialization()
@@ -268,18 +268,18 @@ def main():
             title = "Settings",
             conf = None,
             kq = None,
-            chc = None,
-            dq = None
+            dq = None,
+            eq = None
             )
 
-def my_dev(conf_sect, kill_queue, child_comm, detect_queue):
+def my_dev(conf_sect, kill_queue, detect_queue, email_queue):
     root_settings = MainApp_Settings(
             parent = None,
             title = "Settings",
             conf = conf_sect,
             kq = kill_queue,
-            chc = child_comm,
-            dq = detect_queue
+            dq = detect_queue,
+            eq = email_queue
             )
 
 if __name__ == "__main__":

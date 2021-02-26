@@ -21,12 +21,12 @@ import configparser
 # Add /devices path to script
 sys.path.append(os.path.expanduser("./devices"))
 
-
 try:
-    import camera           # Detection camera
+    import camera           # Image Capturing
     import email_notifier   # Email Notifications
     import encoder          # New Face Addtions
     import value_editor     # Device Settings
+    import recognition       # Facial Recognition
 except ModuleNotFoundError as err:
     print("Error: {} ...Qutting...".format(err))
     sys.exit(True)
@@ -39,6 +39,7 @@ class Main_Comm:
         mp.set_start_method('spawn')
         self.kill_queue = mp.Queue()
         self.detect_queue = mp.Queue()  # Detection queue
+        self.email_queue = mp.Queue()   # Email Queue
         self.p_conns = []
         self.ch_conns = []
         self.processes = []
@@ -65,8 +66,8 @@ class Main_Comm:
                     args=( \
                         conf,                   # Device section of config
                         self.kill_queue,        # Kill queue
-                        self.ch_conn,           # Child end of the PIPE
                         self.detect_queue,      # Detection queue for camera
+                        self.email_queue,       # Email queue for recongition to email
                         ))
             self.proc.start()
             self.p_conns.append(self.p_conn)
@@ -113,7 +114,7 @@ class Main_Comm:
         return self.stat, self.results
 
     def Stop_devices(self):
-        print("Communicator: Delete child PIPE before triggering Kill Queue...")
+        print("Communicator: Delete child PIPEs before triggering Kill Queue...")
         for pi in self.ch_conns:
             pi.close()
 
@@ -127,11 +128,11 @@ class Dev_Communicator():
     def __init__(self):
         pass
 
-    def Send_data(self, to_send):
-        self.chc.send(to_send)  # connect to device to send data to main.py
-
     def Camera_detect_queue(self, detect_queue, data):
         detect_queue.put(data)
+
+    def Email_info_queue(self, email_queue, data):
+        email_queue.put(data)
 
     def Poll_queue_better(self):
         if not self.kq.empty():
