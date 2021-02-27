@@ -133,7 +133,7 @@ class MainApp_Recog():
                 if self.conf:
                     if name and (self.time_differential <=0):
                         self.comm_agent.Email_info_queue(self.eq, name)
-                        self.comm_agent.Email_info_queue(self.eq, init_frame)
+                        self.comm_agent.Email_info_queue(self.eq, rgb)
                         self.sent_time = time.time()
                         self.new_time = self.sent_time + 15
                     else:
