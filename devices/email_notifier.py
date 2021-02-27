@@ -6,7 +6,7 @@ DESCRIPTION
 ===========
 
 Python script to send names and images of door entrants using email notifications
-
+Will also activate a GPIO pin for 15 seconds
 
 '''
 
@@ -28,6 +28,9 @@ from email.mime.multipart import MIMEMultipart
 import PIL
 from PIL import Image
 
+user = os.uname()
+if user[1] == "raspberrypi":
+    import RPi.GPIO as GPIO
 
 
 class Controls(tk.Frame):
@@ -83,6 +86,13 @@ class MainApp_Email():
 
 #        self.geometry("+100+500")
 #        self.title(title)
+
+        ''' GPIO setup '''
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+        self.relay = 26     # Value to change if we need a different pin!!!!!!!!!!!!
+        GPIO.setup(self.relay, GPIO.OUT)
+        self.time_off = time.time()
 
         ''' Setting email variables '''
         self.port = 465     # For SSL
@@ -164,12 +174,15 @@ class MainApp_Email():
             if not self.eq.empty():
                 name_received = self.eq.get()
                 frame_received = self.eq.get()
-                frame_converted = cv2.cvtColor(frame_received, cv2.COLOR_BGR2RGB)
+                if not name_received == "Unknown person":
+                    self.time_off = time.time() + 15
+                    GPIO.output(self.relay, 1)
+                frame_converted = cv2.cvtColor(frame_received, cv2.COLOR_RGB2GRAY)
 #                print("EMAIL: Received Name: {}!!!!!".format(name_received))
                 time_rec = time.strftime("%H:%M:%S")
                 self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
                 self.message = f"Subject: {self.subject}\n\n{self.body}"
-                frame_convert = PIL.Image.fromarray(frame_converted, 'RGB')
+                frame_convert = PIL.Image.fromarray(frame_converted)
                 frame_convert = frame_convert.save("Entrant.png")
                 self.create_msg()
                 self.start_connection()
@@ -177,6 +190,8 @@ class MainApp_Email():
                 string_received = self.kq.get()
                 print("Email: Received {} command from kill_queue!".format(string_received))
                 self.on_quit()
+            if self.time_off <= time.time():
+                GPIO.output(self.relay, 0)
 #            self.after(1, self.update_GUI)
 
     def on_quit(self):
