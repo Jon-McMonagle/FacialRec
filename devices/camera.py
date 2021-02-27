@@ -100,6 +100,7 @@ class MainApp_Camera(tk.Tk):
         ''' Setting variables '''
         self.frame_rate = tk.DoubleVar()
         self.frame_rate.set(-1)
+        self.send_time = time.time() + 2
 
 #        self.sent_time = 0
 #        self.new_time = 15
@@ -138,7 +139,7 @@ class MainApp_Camera(tk.Tk):
     def initialization(self):
         my_init = {
                 'position':'+800+70',
-                'update':5,
+                'update':2,
         }
         for k, v in my_init.items():
             try: my_init[k] = self.conf[k]
@@ -160,8 +161,9 @@ class MainApp_Camera(tk.Tk):
             self.image = PIL.Image.fromarray(curr_frame)
             self.photo = PIL.ImageTk.PhotoImage(self.image)
             self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)  # GUI
-        if self.conf:
+        if self.conf and (self.send_time - time.time())<=0:
             self.comm_agent.Camera_detect_queue(self.dq, curr_frame)
+            self.send_time = time.time() + 2
         else:
             pass    # Running alone
         # COMMUNICATOR KQ

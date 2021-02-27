@@ -180,7 +180,9 @@ class MainApp_Email():
     def on_quit(self):
         print("Email Notifier: Quitting...")
         self.run_update = False
-#        self.destroy()
+        print("Email: Emptying pipe...")
+        while not self.eq.empty():
+            cleanup = self.eq.get()
 
 
 

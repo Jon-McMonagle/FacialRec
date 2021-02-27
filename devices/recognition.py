@@ -65,6 +65,7 @@ class MainApp_Recog():
             self.dq = mp.Queue()
             self.eq = mp.Queue()    # EMAIL QUEUE
             os.chdir("..")
+            self.run_update = False
 
         ''' Setting Recognition parameters '''
         cascPath = "haarcascade_frontalface_default.xml"
@@ -90,6 +91,7 @@ class MainApp_Recog():
 
     def update_loop(self):
         while self.run_update:
+            ''' Facial Recognition statement '''
             if not self.dq.empty():
                 self.encoder_data()
                 init_frame = self.dq.get()
@@ -109,7 +111,7 @@ class MainApp_Recog():
                     ## If No matches:
                     name = "Unknown person"
                     if matches == False:
-                        break
+                        pass
                     else:
                         print("Recongition: IN FR Loop!") ### REMOVE THIS
                         gray = cv2.cvtColor(init_frame, cv2.COLOR_BGR2GRAY)
@@ -124,11 +126,11 @@ class MainApp_Recog():
                         name = max(counts, key = counts.get)
                     names.append(name) # Update the list of names
                     ## Loop over the recognized faces
-#                    for((x,y,w,h), name) in zip(faces, names):
-#                        ''' Rescale the face coordinates and add name to image of face '''
-#                        cv2.rectangle(init_frame, (x,y), (x+w, y+h), (0,255,0), 2)
-#                        cv2.putText(init_frame, name, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.75,
-#                            (0,255,0), 2)
+#                   for((x,y,w,h), name) in zip(faces, names):
+#                      ''' Rescale the face coordinates and add name to image of face '''
+#                       cv2.rectangle(init_frame, (x,y), (x+w, y+h), (0,255,0), 2)
+#                       cv2.putText(init_frame, name, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.75,
+#                           (0,255,0), 2)
                 if self.conf:
                     if name and (self.time_differential <=0):
                         self.comm_agent.Email_info_queue(self.eq, name)
@@ -146,11 +148,11 @@ class MainApp_Recog():
             self.time_differential = self.new_time - time.time()
 
     def on_quit(self):
+        print("Recognition: Qutting..")
         self.run_update = False
         print("Recognition: Emptying pipe...")
         while not self.dq.empty():
             cleanup = self.dq.get()
-        print("Recognition: Quitting..")
 
 
 
