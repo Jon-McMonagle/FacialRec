@@ -41,7 +41,7 @@ class Controls(tk.Frame):
 class Frame_Image(tk.Frame):
     def __init__(self, parent=None):
         super().__init__(parent)
-        bg1 = "#00A8B3"
+        bg1 = "#CE0444"
         self.config(bg=bg1)
         self.config(width=650)
         self.config(height=500)
@@ -54,11 +54,11 @@ class Frame_Info(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         self.parent = parent
-        bg1 = "grey"
+        bg1 = "#CE0444"
         wid = 225
         self.config(bg=bg1)
         self.config(width=wid)
-        self.config(height=500)
+        self.config(height=200)     ## CHANGE THIS IF SHOWING IMAGE TO MATCH FRAME_IMAGE
         self.config(bd=2)
         self.config(relief="ridge")
         self.grid_propagate(False)  # Prevents resizing
@@ -94,7 +94,7 @@ class MainApp_Camera(tk.Tk):
         self.parent = parent
         self.conf = conf
 
-        self.geometry("+700+100")
+        self.geometry("+1000+100")
         self.title(title)
 
         ''' Setting variables '''
@@ -103,14 +103,14 @@ class MainApp_Camera(tk.Tk):
         self.send_time = time.time() + 2
 
         ''' Setting Frames '''
-        self.ImageFrame = Frame_Image(self)
+#        self.ImageFrame = Frame_Image(self)
         self.FrameInfo = Frame_Info(self)
 
-        self.ImageFrame.grid(column=0, row=0)
+#        self.ImageFrame.grid(column=0, row=0)
         self.FrameInfo.grid(column=1, row=0, sticky="ns")
 
-        self.canvas = tk.Canvas(self.ImageFrame, width=640, height=480)
-        self.canvas.pack(side="left", padx=10, pady=10)
+#        self.canvas = tk.Canvas(self.ImageFrame, width=640, height=480)
+#        self.canvas.pack(side="left", padx=10, pady=10)
 
         # Hardware and Communication
         if conf:
@@ -134,7 +134,7 @@ class MainApp_Camera(tk.Tk):
 
     def initialization(self):
         my_init = {
-                'position':'+800+70',
+                'position':'+860+70',
                 'update':2,
         }
         for k, v in my_init.items():
@@ -151,10 +151,10 @@ class MainApp_Camera(tk.Tk):
         self.fr, curr_frame, answer  = self.capture_device.get_frame_rate()
         self.frame_rate.set(round(self.fr, 3))
         ###
-        if answer:
-            self.image = PIL.Image.fromarray(curr_frame)
-            self.photo = PIL.ImageTk.PhotoImage(self.image)
-            self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)  # GUI
+#        if answer:
+#            self.image = PIL.Image.fromarray(curr_frame)
+#            self.photo = PIL.ImageTk.PhotoImage(self.image)
+#            self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)  # GUI
         if self.conf and (self.send_time - time.time())<=0:
             self.comm_agent.Camera_detect_queue(self.dq, curr_frame)
             self.send_time = time.time() + 2

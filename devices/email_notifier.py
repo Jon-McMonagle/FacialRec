@@ -175,7 +175,7 @@ class MainApp_Email():
                 name_received = self.eq.get()
                 frame_received = self.eq.get()
                 if not name_received == "Unknown person":
-                    self.time_off = time.time() + 15
+                    self.time_off = time.time() + 25
                     GPIO.output(self.relay, 1)
                 frame_converted = cv2.cvtColor(frame_received, cv2.COLOR_RGB2GRAY)
 #                print("EMAIL: Received Name: {}!!!!!".format(name_received))

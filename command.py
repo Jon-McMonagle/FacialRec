@@ -109,7 +109,7 @@ class Frame_MainFrame(tk.Frame):
 
 
 class MainApp(tk.Tk):
-    def __init__(self, master=None, title="MAIN", size="+60+60"):
+    def __init__(self, master=None, title="MAIN", size="+500+100"):
         super().__init__()
         self.title(title)
         self.geometry(size) # position only

@@ -198,7 +198,7 @@ class MainApp_Settings(tk.Tk):
         self.parent = parent
         self.conf = conf
 
-        self.geometry("+500+500")
+        self.geometry("+200+500")
         self.title(title)
 
         ''' Setting Variables '''
@@ -228,7 +228,7 @@ class MainApp_Settings(tk.Tk):
 
     def initialization(self):
         my_init = {
-            'position':'500+500',
+            'position':'400+600',
             'receiver':'none',
         }
         for k, v in my_init.items():

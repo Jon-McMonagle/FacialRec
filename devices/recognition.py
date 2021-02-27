@@ -51,7 +51,7 @@ class MainApp_Recog():
         ''' Setting required variables '''
         self.sent_time = 0
         self.new_time = time.time()
-        self.time_differential = 15
+        self.time_differential = 25
         self.run_update = True
 
         # Hardware and Communication
@@ -121,7 +121,7 @@ class MainApp_Recog():
             ## If No matches:
             name = "Unknown person"
             if matches == False:
-                self.new_time = time.time() + 15
+                self.new_time = time.time() + 25
                 pass
             else:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -143,7 +143,7 @@ class MainApp_Recog():
 #                   (0,255,0), 2)
         if self.conf:
             if name:
-                self.new_time = time.time() + 15
+                self.new_time = time.time() + 25
                 self.comm_agent.Email_info_queue(self.eq, name)
                 self.comm_agent.Email_info_queue(self.eq, rgb)
             else:

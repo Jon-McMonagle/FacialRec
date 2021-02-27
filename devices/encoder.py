@@ -129,7 +129,7 @@ class MainApp_Encoder(tk.Tk):
         self.parent = parent
         self.conf = conf
 
-        self.geometry("+1000+750")
+        self.geometry("+1000+500")
         self.title(title)
 
         ''' Setting Variables '''
