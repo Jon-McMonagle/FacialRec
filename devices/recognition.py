@@ -105,7 +105,7 @@ class MainApp_Recog():
                 for encoding in encodings:
                     for n in range(self.nof):
                         encdata = 'encodings/' + str(self.list[n])
-                        self.data = pickel.loads(open(encdata, "rb").read())
+                        self.data = pickle.loads(open(encdata, "rb").read())
                         matches = face_recognition.compare_faces(self.data["encodings"],
                             encoding)
                     ## If No matches:
