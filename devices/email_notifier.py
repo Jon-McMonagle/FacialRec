@@ -6,7 +6,7 @@ DESCRIPTION
 ===========
 
 Python script to send names and images of door entrants using email notifications
-Will also activate a GPIO pin for 15 seconds
+Will also activate a GPIO pin for 25 seconds
 
 '''
 
@@ -169,7 +169,6 @@ class MainApp_Email():
                 cfgemail = cfg["email_notifier"]
                 self.receiver_address = cfgemail["receiver"]
             except KeyError: pass
-            except DuplicateOptionError: pass
             # COMMUNICATOR
             if not self.eq.empty():
                 name_received = self.eq.get()
