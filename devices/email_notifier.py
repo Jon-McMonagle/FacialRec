@@ -169,6 +169,7 @@ class MainApp_Email():
                 cfgemail = cfg["email_notifier"]
                 self.receiver_address = cfgemail["receiver"]
             except KeyError: pass
+            except: ParsingError: pass
             # COMMUNICATOR
             if not self.eq.empty():
                 name_received = self.eq.get()
