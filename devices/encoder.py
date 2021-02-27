@@ -91,6 +91,7 @@ class Main_Panel(tk.Frame):
         editor = cfg["value_editor"]
         try: editor["directory"] = self.parent.Directory
         except TypeError: pass
+        except DuplicateOptionError: pass
         with open('config/config_FR.cfg', 'w') as conf:
             cfg.write(conf)
 
