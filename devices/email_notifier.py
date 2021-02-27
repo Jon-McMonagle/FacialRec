@@ -18,6 +18,7 @@ import os
 import multiprocessing as mp
 import device_communicator as dc
 import configparser
+import cv2
 
 import smtplib
 import ssl
@@ -163,11 +164,12 @@ class MainApp_Email():
             if not self.eq.empty():
                 name_received = self.eq.get()
                 frame_received = self.eq.get()
-                print("EMAIL: Received Name: {}!!!!!".format(name_received))
+                frame_converted = cv2.cvtColor(frame_received, cv2.COLOR_BGR2RGB)
+#                print("EMAIL: Received Name: {}!!!!!".format(name_received))
                 time_rec = time.strftime("%H:%M:%S")
                 self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
                 self.message = f"Subject: {self.subject}\n\n{self.body}"
-                frame_convert = PIL.Image.fromarray(frame_received, 'RGB')
+                frame_convert = PIL.Image.fromarray(frame_converted, 'RGB')
                 frame_convert = frame_convert.save("Entrant.png")
                 self.create_msg()
                 self.start_connection()

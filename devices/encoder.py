@@ -89,7 +89,8 @@ class Main_Panel(tk.Frame):
         cfg = configparser.ConfigParser()
         cfg.read('config/config_FR.cfg')
         editor = cfg["value_editor"]
-        editor["directory"] = self.parent.Directory
+        try: editor["directory"] = self.parent.Directory
+        except TypeError: pass
         with open('config/config_FR.cfg', 'w') as conf:
             cfg.write(conf)
 
