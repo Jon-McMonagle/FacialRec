@@ -88,7 +88,7 @@ class ChangeUE(tk.Toplevel):
         self.config(height=30)
         ''' Adding parameters '''
         L_ne = tk.Label(self, text="New Email:", bg=bg1)
-        self.T_ne = tk.Entry(self, width=30)
+        self.T_ne = tk.Entry(self, width=30)    # T_ne == text, new email
         B_ne = tk.Button(self, text="Change", command=lambda:self.set_email(), fg='red')
         ''' Grid configuration '''
         cc = 5
@@ -240,6 +240,7 @@ class MainApp_Settings(tk.Tk):
          # Assigning variables
         email_holder =  my_init['receiver']
         self.current_email.set(email_holder)
+        self.old_email = email_holder
 
     def update_GUI(self):
         cfg = configparser.ConfigParser()
@@ -248,6 +249,11 @@ class MainApp_Settings(tk.Tk):
             cfgemail = cfg["value_editor"]
             self.current_email.set(cfgemail["receiver"])
         except KeyError: pass
+        if not self.old_email == self.current_email.get():
+            #print("HITTING CHANGE LOOP, SENDING NEW EMAIL THROUGH PIPE!!!")
+            self.old_email = self.current_email.get()
+            if self.conf:
+                self.comm_agent.Email_info_queue(self.eq, self.old_email)
         # COMMUNICATOR
         if not self.kq.empty():
             string_received = self.kq.get()
