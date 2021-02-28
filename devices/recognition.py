@@ -94,7 +94,8 @@ class MainApp_Recog():
             if self.new_time <= time.time():
                 if not self.dq.empty():
                     init_frame = self.dq.get()
-                    self.facial_recognition(init_frame)
+                    if len(init_frame) > 0:
+                        self.facial_recognition(init_frame)
             if self.new_time > time.time():
                 if not self.dq.empty():
                     cleanup = self.dq.get()
@@ -118,20 +119,25 @@ class MainApp_Recog():
                 self.data = pickle.loads(open(encdata, "rb").read())
                 matches = face_recognition.compare_faces(self.data["encodings"],
                     encoding)
+                if not matches == False:
+                    break
             ## If No matches:
             name = "Unknown person"
-            if True in matches:
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1,
-                    minNeighbors = 5, minSize = (60,60))
-                ## Find positions at which we get True and store them
-                matchedIdxs = [i for (i,b) in enumerate(matches) if b]
-                counts = {}
-                for i in matchedIdxs:
-                    name = self.data["names"][i]
-                    counts[name] = counts.get(name, 0) + 1
-                name = max(counts, key = counts.get)
-            names.append(name) # Update the list of names
+            if matches == False:
+                pass
+            else:
+                if True in matches:
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1,
+                        minNeighbors = 5, minSize = (60,60))
+                    ## Find positions at which we get True and store them
+                    matchedIdxs = [i for (i,b) in enumerate(matches) if b]
+                    counts = {}
+                    for i in matchedIdxs:
+                        name = self.data["names"][i]
+                        counts[name] = counts.get(name, 0) + 1
+                    name = max(counts, key = counts.get)
+                names.append(name) # Update the list of names
             ## Loop over the recognized faces
 #           for((x,y,w,h), name) in zip(faces, names):
 #              ''' Rescale the face coordinates and add name to image of face '''
