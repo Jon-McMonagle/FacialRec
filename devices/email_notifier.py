@@ -144,7 +144,7 @@ class MainApp_Email():
 
         # Assigning variables
         self.password = my_init['password']
-        self.receiver_adresss = my_init['receiver']
+        self.receiver_address = my_init['receiver']
 
     def start_connection(self):
         # Create a secure SSL context
@@ -165,32 +165,35 @@ class MainApp_Email():
             img.add_header('Content-Disposition', 'attachment', filename="Entrant.png")
             self.msg.attach(img)
 
-    def update_GUI(self):       # NEED to add the pin code to this section for approved names
+    def update_GUI(self):
         while self.run_update:
-            try:
-                cfg = configparser.ConfigParser()
-                cfg.read('config/config_FR.cfg')
-                cfgemail = cfg["email_notifier"]
-                self.receiver_address = cfgemail["receiver"]
-            except KeyError: pass
-            except ConfigParser.ParsingError: pass
             # COMMUNICATOR
             if not self.eq.empty():
-                name_received = self.eq.get()
-                frame_received = self.eq.get()
-                if not name_received == "Unknown person":
-                    self.time_off = time.time() + 25
-                    if self.user[1] == "raspberrypi":
-                        GPIO.output(self.relay, 1)
-                frame_converted = cv2.cvtColor(frame_received, cv2.COLOR_RGB2GRAY)
+                queuedata = self.eq.get()
+                if isinstance(queuedata, str):
+                    if "@" in queuedata:
+                        self.receiver_address = queuedata
+                        #print("receiver: ",format(queuedata))
+                    else:
+                        name_received = queuedata
+                        #print("name_received: ",format(queuedata))
+                else:
+                    frame_received = queuedata
+                #name_received = self.eq.get()
+                #frame_received = self.eq.get()
+                    if not name_received == "Unknown person":
+                        self.time_off = time.time() + 25
+                        if self.user[1] == "raspberrypi":
+                            GPIO.output(self.relay, 1)
+                    frame_converted = cv2.cvtColor(frame_received, cv2.COLOR_RGB2GRAY)
 #                print("EMAIL: Received Name: {}!!!!!".format(name_received))
-                time_rec = time.strftime("%H:%M:%S")
-                self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
-                self.message = f"Subject: {self.subject}\n\n{self.body}"
-                frame_convert = PIL.Image.fromarray(frame_converted)
-                frame_convert = frame_convert.save("Entrant.png")
-                self.create_msg()
-                self.start_connection()
+                    time_rec = time.strftime("%H:%M:%S")
+                    self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
+                    self.message = f"Subject: {self.subject}\n\n{self.body}"
+                    frame_convert = PIL.Image.fromarray(frame_converted)
+                    frame_convert = frame_convert.save("Entrant.png")
+                    self.create_msg()
+                    self.start_connection()
             if not self.kq.empty():
                 string_received = self.kq.get()
                 print("Email: Received {} command from kill_queue!".format(string_received))
