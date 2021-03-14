@@ -119,11 +119,12 @@ class MainApp_Recog():
                 self.data = pickle.loads(open(encdata, "rb").read())
                 matches = face_recognition.compare_faces(self.data["encodings"],
                     encoding)
-                if not matches == False:
+                if True in matches:
                     break
-            ## If No matches:
-            name = "Unknown person"
+             #If No matches:
+#            name = "Unknown person"
             if matches == False:
+                name = "Unknown person"
                 pass
             else:
                 if True in matches:
@@ -138,6 +139,8 @@ class MainApp_Recog():
                         counts[name] = counts.get(name, 0) + 1
                     name = max(counts, key = counts.get)
                 names.append(name) # Update the list of names
+            if not name == "Unknown person":
+                break
             ## Loop over the recognized faces
 #           for((x,y,w,h), name) in zip(faces, names):
 #              ''' Rescale the face coordinates and add name to image of face '''
