@@ -176,7 +176,7 @@ class MainApp_Email():
                         #print("receiver: ",format(queuedata))
                     else:
                         name_received = queuedata
-                        #print("name_received: ",format(queuedata))
+                        print("Recognized person: ",format(queuedata))
                 else:
                     frame_received = queuedata
                 #name_received = self.eq.get()
@@ -186,7 +186,6 @@ class MainApp_Email():
                         if self.user[1] == "raspberrypi":
                             GPIO.output(self.relay, 1)
                     frame_converted = cv2.cvtColor(frame_received, cv2.COLOR_RGB2GRAY)
-#                print("EMAIL: Received Name: {}!!!!!".format(name_received))
                     time_rec = time.strftime("%H:%M:%S")
                     self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
                     self.message = f"Subject: {self.subject}\n\n{self.body}"
