@@ -24,6 +24,7 @@ import sys
 import time
 
 
+
 Working_directory = os.getcwd()
 Project_directory = os.path.dirname(os.path.realpath(__file__))
 Device_folder = 'devices'
@@ -126,6 +127,13 @@ class MainApp(tk.Tk):
         ''' Declaring variables '''
         self.Directory = os.getcwd()
 
+        self.user = os.uname()
+        if self.user[1] == "raspberrypi":
+            import pijuice
+            from pijuice import PiJuice
+            self.pijuice = PiJuice(1, 0x14)
+            self.pijuice.power.SetSystemPowerSwitch(2100)
+
         ''' Hardware '''
         print("Command: Initalizing communicator..")
         self.communicator = device_communicator.Main_Comm(self.Directory)
@@ -195,6 +203,8 @@ class MainApp(tk.Tk):
             os.remove("Entrant.png")
         except FileNotFoundError:
             pass
+        if self.user[1] == "raspberrypi":
+            self.pijuice.power.SetSystemPowerSwitch(0)
         print("Command: Shutting down devices: {}".format(self.Devices))
         self.communicator.Stop_devices()
 

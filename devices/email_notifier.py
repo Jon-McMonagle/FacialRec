@@ -191,7 +191,7 @@ class MainApp_Email():
                     self.message = f"Subject: {self.subject}\n\n{self.body}"
                     frame_convert = PIL.Image.fromarray(frame_converted)
                     frame_convert = frame_convert.save("Entrant.png")
-                    if not self.receiver_address == "":
+                    if "@" in self.receiver_address:
                         self.create_msg()
                         self.start_connection()
             if not self.kq.empty():
