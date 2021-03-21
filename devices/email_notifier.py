@@ -6,7 +6,7 @@ DESCRIPTION
 ===========
 
 Python script to send names and images of door entrants using email notifications
-Will also activate a GPIO pin for 25 seconds
+Will also activate a GPIO pin for 5 seconds
 
 '''
 
@@ -191,8 +191,9 @@ class MainApp_Email():
                     self.message = f"Subject: {self.subject}\n\n{self.body}"
                     frame_convert = PIL.Image.fromarray(frame_converted)
                     frame_convert = frame_convert.save("Entrant.png")
-                    self.create_msg()
-                    self.start_connection()
+                    if not self.receiver_address == "":
+                        self.create_msg()
+                        self.start_connection()
             if not self.kq.empty():
                 string_received = self.kq.get()
                 print("Email: Received {} command from kill_queue!".format(string_received))
