@@ -30,7 +30,8 @@ from PIL import Image
 
 user = os.uname()
 if user[1] == "raspberrypi":
-    import RPi.GPIO as GPIO
+    import pijuice
+    from pijuice import PiJuice
 
 
 
@@ -184,7 +185,8 @@ class MainApp_Email():
                     if not name_received == "Unknown person":
                         self.time_off = time.time() + 5
                         if self.user[1] == "raspberrypi":
-                            GPIO.output(self.relay, 1)
+                            self.pijuice = PiJuice(1, 0x14)
+                            self.pijuice.power.SetSystemPowerSwitch(2100)
                     frame_converted = cv2.cvtColor(frame_received, cv2.COLOR_RGB2GRAY)
                     time_rec = time.strftime("%H:%M:%S")
                     self.body = "Person recorded at  door: {}<br>At time: {}".format(name_received, time_rec)
@@ -200,7 +202,7 @@ class MainApp_Email():
                 self.on_quit()
             if self.time_off <= time.time():
                 if self.user[1] == "raspberrypi":
-                    GPIO.output(self.relay, 0)
+                    self.pijuice.power.SetSystemPowerSwitch(0)
 #            self.after(1, self.update_GUI)
 
     def on_quit(self):

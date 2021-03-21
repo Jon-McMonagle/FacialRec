@@ -19,4 +19,5 @@ sudo pip3 install imutils
 sudo pip3 install matplotlib
 #sudo pip3 install opencv-python
 sudo apt-get install xrdp
+sudo apt-get install pijuice-base
 #sudo apt install git

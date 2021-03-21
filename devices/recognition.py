@@ -149,7 +149,7 @@ class MainApp_Recog():
 #                   (0,255,0), 2)
         if self.conf:
             if name:
-                self.new_time = time.time() + 25
+                self.new_time = time.time() + 10
                 self.comm_agent.Email_info_queue(self.eq, name)
                 self.comm_agent.Email_info_queue(self.eq, rgb)
             else:

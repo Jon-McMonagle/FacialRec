@@ -128,11 +128,6 @@ class MainApp(tk.Tk):
         self.Directory = os.getcwd()
 
         self.user = os.uname()
-        if self.user[1] == "raspberrypi":
-            import pijuice
-            from pijuice import PiJuice
-            self.pijuice = PiJuice(1, 0x14)
-            self.pijuice.power.SetSystemPowerSwitch(2100)
 
         ''' Hardware '''
         print("Command: Initalizing communicator..")
@@ -203,8 +198,6 @@ class MainApp(tk.Tk):
             os.remove("Entrant.png")
         except FileNotFoundError:
             pass
-        if self.user[1] == "raspberrypi":
-            self.pijuice.power.SetSystemPowerSwitch(0)
         print("Command: Shutting down devices: {}".format(self.Devices))
         self.communicator.Stop_devices()
 
@@ -213,7 +206,6 @@ class MainApp(tk.Tk):
             stat, pulled = self.communicator.Pull_data()
             _all = all(x == 'CLOSED' for x in stat)
             time.sleep(1)
-
         print("Command: All devices are off. Quitting...")
         self.destroy()
 
