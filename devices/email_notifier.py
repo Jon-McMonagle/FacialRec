@@ -92,11 +92,11 @@ class MainApp_Email():
         self.user = os.uname()
 
         ''' GPIO setup '''
-        if self.user[1] == "raspberrypi":
-            GPIO.setmode(GPIO.BCM)
-            GPIO.setwarnings(False)
-            self.relay = 26     # Value to change if we need a different pin!!!!!!!!!!!!
-            GPIO.setup(self.relay, GPIO.OUT)
+#        if self.user[1] == "raspberrypi":
+#            GPIO.setmode(GPIO.BCM)
+#            GPIO.setwarnings(False)
+#            self.relay = 26     # Value to change if we need a different pin!!!!!!!!!!!!
+#            GPIO.setup(self.relay, GPIO.OUT)
         self.time_off = time.time()
 
         ''' Setting email variables '''
