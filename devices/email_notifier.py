@@ -91,12 +91,9 @@ class MainApp_Email():
 
         self.user = os.uname()
 
-        ''' GPIO setup '''
-#        if self.user[1] == "raspberrypi":
-#            GPIO.setmode(GPIO.BCM)
-#            GPIO.setwarnings(False)
-#            self.relay = 26     # Value to change if we need a different pin!!!!!!!!!!!!
-#            GPIO.setup(self.relay, GPIO.OUT)
+        ''' PiJuice Setup '''
+        if self.user[1] == "raspberrypi":
+            self.pijuice = PiJuice(1, 0x14)
         self.time_off = time.time()
 
         ''' Setting email variables '''
@@ -185,7 +182,6 @@ class MainApp_Email():
                     if not name_received == "Unknown person":
                         self.time_off = time.time() + 5
                         if self.user[1] == "raspberrypi":
-                            self.pijuice = PiJuice(1, 0x14)
                             self.pijuice.power.SetSystemPowerSwitch(2100)
                     frame_converted = cv2.cvtColor(frame_received, cv2.COLOR_RGB2GRAY)
                     time_rec = time.strftime("%H:%M:%S")
