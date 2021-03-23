@@ -51,7 +51,6 @@ class MainApp_Recog():
         ''' Setting required variables '''
         self.sent_time = 0
         self.new_time = time.time()
-        self.time_differential = 25
         self.run_update = True
 
         # Hardware and Communication
@@ -97,7 +96,7 @@ class MainApp_Recog():
                     if len(init_frame) > 0:
                         self.facial_recognition(init_frame)
             if self.new_time > time.time():
-                if not self.dq.empty():
+                while not self.dq.empty():
                     cleanup = self.dq.get()
             if not self.kq.empty():
                   string_received = self.kq.get()
@@ -149,7 +148,7 @@ class MainApp_Recog():
 #                   (0,255,0), 2)
         if self.conf:
             if name:
-                self.new_time = time.time() + 10
+                self.new_time = time.time() + 15
                 self.comm_agent.Email_info_queue(self.eq, name)
                 self.comm_agent.Email_info_queue(self.eq, rgb)
             else:
