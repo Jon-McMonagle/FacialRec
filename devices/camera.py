@@ -196,6 +196,7 @@ class VideoCapture():
     def get_frame_rate(self):
         if self.video_cap.isOpened():
             ret, frame = self.video_cap.read()
+            small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
             if ret:
                 frame_np = np.array(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), np.float)
                 frame_np = frame_np[np.newaxis,:,:]
@@ -207,9 +208,9 @@ class VideoCapture():
                     self.frate = (self.frame_counter - self.f_old) / time_diff
                     self.f_old = self.frame_counter
                     self.t_old = time.time()
-                return self.frate, frame, ret
+                return self.frate, small_frame, ret
             else:
-                return self.frate, frame, ret
+                return self.frate, small_frame, ret
         else: return None
 
     def release_video(self):
