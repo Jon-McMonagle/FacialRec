@@ -98,7 +98,9 @@ class MainApp_Recog():
                 if not self.dq.empty():
                     init_frame = self.dq.get()
                     if len(init_frame) > 0:
-                        self.facial_recognition(init_frame)
+                        self.fullframe = init_frame
+                        small_frame = cv2.resize(init_frame, (0, 0), fx=0.5, fy=0.5)
+                        self.facial_recognition(small_frame)
             if self.new_time > time.time():
                 if not self.dq.empty():
                     cleanup = self.dq.get()
@@ -150,7 +152,7 @@ class MainApp_Recog():
             if name:
                 self.new_time = time.time() + 15
                 self.comm_agent.Email_info_queue(self.eq, name)
-                self.comm_agent.Email_info_queue(self.eq, rgb)
+                self.comm_agent.Email_info_queue(self.eq, self.fullframe)
             else:
                 pass
         else:
