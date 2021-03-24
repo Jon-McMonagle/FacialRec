@@ -194,10 +194,12 @@ class MainApp(tk.Tk):
         return _header, _all_vals
 
     def on_quit(self):
+        print("COMMAND: PID: {}".format(os.getpid()))
         try:
             os.remove("Entrant.png")
         except FileNotFoundError:
             pass
+        print("\n")
         print("Command: Shutting down devices: {}".format(self.Devices))
         self.communicator.Stop_devices()
 
@@ -206,6 +208,8 @@ class MainApp(tk.Tk):
             stat, pulled = self.communicator.Pull_data()
             _all = all(x == 'CLOSED' for x in stat)
             time.sleep(1)
+        print("DEBUG: Stat: ",stat)
+        print("DEBUG: Pulled: ", pulled)
         print("Command: All devices are off. Quitting...")
         self.destroy()
 

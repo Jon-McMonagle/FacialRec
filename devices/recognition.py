@@ -90,18 +90,18 @@ class MainApp_Recog():
 
     def update_loop(self):
         while self.run_update:
+            if not self.kq.empty():
+                  string_received = self.kq.get()
+                  print("Recognition: Received {} from kill_queue.".format(string_received))
+                  self.on_quit()
             if self.new_time <= time.time():
                 if not self.dq.empty():
                     init_frame = self.dq.get()
                     if len(init_frame) > 0:
                         self.facial_recognition(init_frame)
             if self.new_time > time.time():
-                while not self.dq.empty():
+                if not self.dq.empty():
                     cleanup = self.dq.get()
-            if not self.kq.empty():
-                  string_received = self.kq.get()
-                  print("Recognition: Received {} from kill_queue.".format(string_received))
-                  self.on_quit()
 
     def facial_recognition(self, frame):
         self.encoder_data()
@@ -127,17 +127,17 @@ class MainApp_Recog():
                 pass
             else:
                 if True in matches:
-                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1,
-                        minNeighbors = 5, minSize = (60,60))
+                    #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    #faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1,
+                    #    minNeighbors = 5, minSize = (60,60))
                     ## Find positions at which we get True and store them
                     matchedIdxs = [i for (i,b) in enumerate(matches) if b]
-                    counts = {}
-                    for i in matchedIdxs:
-                        name = self.data["names"][i]
-                        counts[name] = counts.get(name, 0) + 1
-                    name = max(counts, key = counts.get)
-                names.append(name) # Update the list of names
+                    #counts = {}
+                    #for i in matchedIdxs:
+                    name = self.data["names"][0]
+                        #counts[name] = counts.get(name, 0) + 1
+                    #name = max(counts, key = counts.get)
+                #names.append(name) # Update the list of names
             if not name == "Unknown person":
                 break
             ## Loop over the recognized faces
@@ -157,11 +157,12 @@ class MainApp_Recog():
             pass # Running alone
 
     def on_quit(self):
+        print("RECOGNITION: PID: {}".format(os.getpid()))
         print("Recognition: Qutting..")
         self.run_update = False
-        print("Recognition: Emptying pipe...")
-        while not self.dq.empty():
-            cleanup = self.dq.get()
+        #print("Recognition: Emptying pipe...")
+        #while not self.dq.empty():
+        #    cleanup = self.dq.get()
 
 
 

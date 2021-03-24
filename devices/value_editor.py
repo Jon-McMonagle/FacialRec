@@ -259,9 +259,10 @@ class MainApp_Settings(tk.Tk):
             string_received = self.kq.get()
             print("Settings: Received {} command from kill_queue!".format(string_received))
             self.on_quit()
-        self.after(1, self.update_GUI)
+        self.after(10, self.update_GUI)
 
     def on_quit(self):
+        print("SETTINGS: PID: {}".format(os.getpid()))
         print("Settings: Quitting...")
         self.destroy()
 

@@ -48,7 +48,7 @@ class Main_Comm:
         print("Communicator: Devices from config: {}".format(self.devs))
         self.devs.remove('Command')
         self.devs.remove('saved_faces')
-        print("Communicator: Removed: {}".format(self.devs))
+        #print("Communicator: Removed: {}".format(self.devs))
         # Check for 'executable'
         to_run = []
         init_dict = []
@@ -78,7 +78,7 @@ class Main_Comm:
         self.stat = [None] * len(self.processes)
 
     def Read_config(self):
-        print("Communicator: Reading config file")
+        #print("Communicator: Reading config file")
         try:
             self.cfg = configparser.ConfigParser()
             self.cfg.read('config/config_FR.cfg')
@@ -114,12 +114,14 @@ class Main_Comm:
         return self.stat, self.results
 
     def Stop_devices(self):
+        print("COMMUNICATOR: PID: {}".format(os.getpid()))
         print("Communicator: Delete child PIPEs before triggering Kill Queue...")
         for pi in self.ch_conns:
             pi.close()
 
         for i in enumerate(self.processes):
             self.kill_queue.put(True)
+            sleep(0.1)
             print("Communicator: Waiting for processes to finish...")
 
 

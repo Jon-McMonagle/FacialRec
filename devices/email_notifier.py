@@ -166,6 +166,10 @@ class MainApp_Email():
     def update_GUI(self):
         while self.run_update:
             # COMMUNICATOR
+            if not self.kq.empty():
+                string_received = self.kq.get()
+                print("Email: Received {} command from kill_queue!".format(string_received))
+                self.on_quit()
             if not self.eq.empty():
                 queuedata = self.eq.get()
                 if isinstance(queuedata, str):
@@ -192,21 +196,18 @@ class MainApp_Email():
                     if "@" in self.receiver_address:
                         self.create_msg()
                         self.start_connection()
-            if not self.kq.empty():
-                string_received = self.kq.get()
-                print("Email: Received {} command from kill_queue!".format(string_received))
-                self.on_quit()
             if self.time_off <= time.time():
                 if self.user[1] == "raspberrypi":
                     self.pijuice.power.SetSystemPowerSwitch(0)
 #            self.after(1, self.update_GUI)
 
     def on_quit(self):
+        print("EMAIL: PID: {}".format(os.getpid()))
         print("Email Notifier: Quitting...")
         self.run_update = False
-        print("Email: Emptying pipe...")
-        while not self.eq.empty():
-            cleanup = self.eq.get()
+        #print("Email: Emptying pipe...")
+        #while not self.eq.empty():
+        #    cleanup = self.eq.get()
 
 
 

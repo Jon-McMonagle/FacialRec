@@ -100,7 +100,7 @@ class MainApp_Camera(tk.Tk):
         ''' Setting variables '''
         self.frame_rate = tk.DoubleVar()
         self.frame_rate.set(-1)
-        self.send_time = time.time() + 2
+        #self.send_time = time.time() + 2
 
         ''' Setting Frames '''
 #        self.ImageFrame = Frame_Image(self)
@@ -115,7 +115,7 @@ class MainApp_Camera(tk.Tk):
         # Hardware and Communication
         if conf:
             self.protocol("WM_DELETE_WINDOW", lambda:None)
-            self.kq = kq
+            self.kq = kq    # Kill queue
             self.dq = dq    # Detection queue
             self.eq = eq    # Email queue
             self.comm_agent = dc.Dev_Communicator()
@@ -135,7 +135,7 @@ class MainApp_Camera(tk.Tk):
     def initialization(self):
         my_init = {
                 'position':'+860+70',
-                'update':500,
+                'update':10,
         }
         for k, v in my_init.items():
             try: my_init[k] = self.conf[k]
@@ -148,29 +148,27 @@ class MainApp_Camera(tk.Tk):
         self.delay = int(my_init['update'])
 
     def update_GUI(self):
-        self.fr, curr_frame, answer  = self.capture_device.get_frame_rate()
+        self.fr, curr_frame, answer = self.capture_device.get_frame_rate()
         self.frame_rate.set(round(self.fr, 3))
-        ###
-#        if answer:
-#            self.image = PIL.Image.fromarray(curr_frame)
-#            self.photo = PIL.ImageTk.PhotoImage(self.image)
-#            self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)  # GUI
-        if self.conf and (self.send_time - time.time())<=0:
-            self.comm_agent.Camera_detect_queue(self.dq, curr_frame)
-            self.send_time = time.time() + 2
-        else:
-            pass    # Running alone
-        # COMMUNICATOR KQ
+        #Kill queue
         if not self.kq.empty():
             string_received = self.kq.get()
             print("Camera: Received {} from kill_queue!".format(string_received))
             self.on_quit()
-        ###
+#        if answer:
+#            self.image = PIL.Image.fromarray(curr_frame)
+#            self.photo = PIL.ImageTk.PhotoImage(self.image)
+#            self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)  # GUI
+        if self.conf and self.dq.empty():
+            self.comm_agent.Camera_detect_queue(self.dq, curr_frame)
+        else:
+            pass    # Running alone
         self.after(self.delay, self.update_GUI)
 
     def on_quit(self):
         self.capture_device.release_video()
-        print("CAMERA: Camera device successfully released ... closing...")
+        print("CAMERA: PID: {}".format(os.getpid()))
+        print("Camera: Camera device successfully released ... closing...")
         self.destroy()
 
 

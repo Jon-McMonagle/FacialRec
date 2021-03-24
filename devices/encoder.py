@@ -221,6 +221,7 @@ class MainApp_Encoder(tk.Tk):
         self.after(1, self.update_GUI)
 
     def on_quit(self):
+        print("ENCODER: PID: {}".format(os.getpid()))
         print("Encoder: Qutting...")
         self.destroy()
 
