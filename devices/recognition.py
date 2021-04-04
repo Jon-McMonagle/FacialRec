@@ -99,7 +99,7 @@ class MainApp_Recog():
                     init_frame = self.dq.get()
                     if len(init_frame) > 0:
                         self.fullframe = init_frame
-                        small_frame = cv2.resize(init_frame, (0, 0), fx=0.5, fy=0.5)
+                        small_frame = cv2.resize(init_frame, (0, 0), fx=0.70, fy=0.70)
                         self.facial_recognition(small_frame)
             if self.new_time > time.time():
                 if not self.dq.empty():

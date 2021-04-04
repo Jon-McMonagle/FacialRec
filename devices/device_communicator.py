@@ -121,7 +121,7 @@ class Main_Comm:
 
         for i in enumerate(self.processes):
             self.kill_queue.put(True)
-            sleep(0.1)
+            sleep(0.150)
             print("Communicator: Waiting for processes to finish...")
 
 
