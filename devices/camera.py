@@ -135,7 +135,7 @@ class MainApp_Camera(tk.Tk):
     def initialization(self):
         my_init = {
                 'position':'+860+70',
-                'update':10,
+                'update':20,
         }
         for k, v in my_init.items():
             try: my_init[k] = self.conf[k]

@@ -69,6 +69,7 @@ class Main_Comm:
                         self.detect_queue,      # Detection queue for camera
                         self.email_queue,       # Email queue for recongition to email
                         ))
+            self.proc.daemon = True     # add this to ensure quitting works??
             self.proc.start()
             self.p_conns.append(self.p_conn)
             self.ch_conns.append(self.ch_conn)
