@@ -17,6 +17,9 @@ import face_recognition
 import imutils
 import pickle
 
+# Modules for blur detection
+from imutils import paths
+
 # Modules for general purpose and image processing
 import time
 import os
@@ -98,9 +101,11 @@ class MainApp_Recog():
                 if not self.dq.empty():
                     init_frame = self.dq.get()
                     if len(init_frame) > 0:
-                        self.fullframe = init_frame
-                        small_frame = cv2.resize(init_frame, (0, 0), fx=0.70, fy=0.70)
-                        self.facial_recognition(small_frame)
+                        blur_test = cv2.Laplacian(init_frame, cv2.CV_64F).var()
+                        if blur_test > 260:     # VALUE TO ADJUST TO CHANGE BLUR DETECTION
+                            self.fullframe = init_frame
+                            small_frame = cv2.resize(init_frame, (0, 0), fx=0.70, fy=0.70)
+                            self.facial_recognition(small_frame)
             if self.new_time > time.time():
                 if not self.dq.empty():
                     cleanup = self.dq.get()

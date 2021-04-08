@@ -20,11 +20,6 @@ from PIL import ImageTk
 import random
 import numpy as np
 
-# Blur detection
-import imutils
-from imutils import paths
-import argparse
-
 import multiprocessing as mp
 
 import device_communicator as dc
@@ -158,16 +153,11 @@ class MainApp_Camera(tk.Tk):
 #            self.image = PIL.Image.fromarray(curr_frame)
 #            self.photo = PIL.ImageTk.PhotoImage(self.image)
 #            self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)  # GUI
-        blur_test = self.laplace_variance(curr_frame)
-        if blur_test > 250:     ## VALUE TO ADJUST TO CHANGE BLUR DETECTION
-            if self.conf and self.dq.empty():
-                self.comm_agent.Camera_detect_queue(self.dq, curr_frame)
-            else:
-                pass    # Running alone
+        if self.conf and self.dq.empty():
+           self.comm_agent.Camera_detect_queue(self.dq, curr_frame)
+        else:
+           pass    # Running alone
         self.after(self.delay, self.update_GUI)
-
-    def laplace_variance(self, image):
-        return cv2.Laplacian(image, cv2.CV_64F).var()
 
     def on_quit(self):
         self.capture_device.release_video()
