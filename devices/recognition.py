@@ -109,54 +109,35 @@ class MainApp_Recog():
         self.encoder_data()
         # Convert from BGR to RGB
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        encodings = face_recognition.face_encodings(rgb)
-        names = []
-        ## Loop over facial embeddings in case of mutliple emeddings for faces
+        capture_encodings = face_recognition.face_encodings(rgb)
         name = None
         matches = False
-        for encoding in encodings:
+        if capture_encodings:
             for n in range(self.nof):
                 encdata = 'encodings/' + str(self.list[n])
                 self.data = pickle.loads(open(encdata, "rb").read())
-                matches = face_recognition.compare_faces(self.data["encodings"],
-                    encoding)
+                for encoding in capture_encodings:
+                    matches = face_recognition.compare_faces(self.data["encodings"],
+                        encoding)
+                    if True in matches:
+                        matchedIdxs = [i for (i,b) in enumerate(matches) if b]
+                        name = self.data["names"][0]
+                        break
+                    else:
+                        name = "Unknown person"
                 if True in matches:
                     break
-             #If No matches:
-#            name = "Unknown person"
-            if matches == False:
+            if self.nof == 0:
                 name = "Unknown person"
-                pass
+            if self.conf:
+                if name:
+                    self.new_time = time.time() + 15
+                    self.comm_agent.Email_info_queue(self.eq, name)
+                    self.comm_agent.Email_info_queue(self.eq, self.fullframe)
+                else:
+                    pass
             else:
-                if True in matches:
-                    #gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    #faces = self.faceCascade.detectMultiScale(gray, scaleFactor = 1.1,
-                    #    minNeighbors = 5, minSize = (60,60))
-                    ## Find positions at which we get True and store them
-                    matchedIdxs = [i for (i,b) in enumerate(matches) if b]
-                    #counts = {}
-                    #for i in matchedIdxs:
-                    name = self.data["names"][0]
-                        #counts[name] = counts.get(name, 0) + 1
-                    #name = max(counts, key = counts.get)
-                #names.append(name) # Update the list of names
-            if not name == "Unknown person":
-                break
-            ## Loop over the recognized faces
-#           for((x,y,w,h), name) in zip(faces, names):
-#              ''' Rescale the face coordinates and add name to image of face '''
-#               cv2.rectangle(init_frame, (x,y), (x+w, y+h), (0,255,0), 2)
-#               cv2.putText(init_frame, name, (x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.75,
-#                   (0,255,0), 2)
-        if self.conf:
-            if name:
-                self.new_time = time.time() + 15
-                self.comm_agent.Email_info_queue(self.eq, name)
-                self.comm_agent.Email_info_queue(self.eq, self.fullframe)
-            else:
-                pass
-        else:
-            pass # Running alone
+                pass # Running alone
 
     def on_quit(self):
         print("RECOGNITION: PID: {}".format(os.getpid()))
