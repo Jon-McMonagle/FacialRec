@@ -102,7 +102,7 @@ class MainApp_Recog():
                     init_frame = self.dq.get()
                     if len(init_frame) > 0:
                         blur_test = cv2.Laplacian(init_frame, cv2.CV_64F).var()
-                        if blur_test > 260:     # VALUE TO ADJUST TO CHANGE BLUR DETECTION
+                        if blur_test > 40:     # VALUE TO ADJUST TO CHANGE BLUR DETECTION
                             self.fullframe = init_frame
                             small_frame = cv2.resize(init_frame, (0, 0), fx=0.70, fy=0.70)
                             self.facial_recognition(small_frame)
