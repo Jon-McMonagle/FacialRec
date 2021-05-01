@@ -1,5 +1,8 @@
 sudo apt-get update
 sudo apt upgrade
+sudo apt-get install python3-tk
+sudo apt-get remove python3-pil python3-pil.imagetk python-pil.imagetk python-pil
+sudo apt-get install python3-pil.imagetk
 sudo apt-get install build-essential cmake
 sudo apt-get install libopenblas-dev liblapack-dev
 sudo apt-get install libx11-dev libgtk-3-dev
